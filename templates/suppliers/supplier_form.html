@@ -1,0 +1,185 @@
+
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ page_title }} | MediCare{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/medicines.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <div>
+        <h1>{{ page_title }}</h1>
+        <p>Manage supplier contact and business information.</p>
+    </div>
+
+    <a href="{% url 'suppliers:supplier_list' %}" class="btn-secondary">
+        ← Back to Suppliers
+    </a>
+</div>
+
+<div class="form-card">
+
+    <form method="POST">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+            <div class="form-error-box">
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+
+        <!-- BASIC INFORMATION -->
+        <div class="form-section">
+
+            <h3>Basic Information</h3>
+            <p>Enter supplier name and contact details.</p>
+
+            <div class="form-grid">
+
+                {% for field in form %}
+                    {% if field.name == "supplier_name" or field.name == "contact_person" or field.name == "phone" or field.name == "alternate_phone" or field.name == "email" %}
+
+                    <div class="form-group">
+                        <label for="{{ field.id_for_label }}">
+                            {{ field.label }}
+                            {% if field.field.required %}*{% endif %}
+                        </label>
+
+                        {{ field }}
+
+                        {% for error in field.errors %}
+                            <small class="field-error">{{ error }}</small>
+                        {% endfor %}
+                    </div>
+
+                    {% endif %}
+                {% endfor %}
+
+            </div>
+        </div>
+
+        <!-- BUSINESS INFORMATION -->
+        <div class="form-section">
+
+            <h3>Business Information</h3>
+            <p>Enter GST and drug license information.</p>
+
+            <div class="form-grid">
+
+                {% for field in form %}
+                    {% if field.name == "gstin" or field.name == "drug_license_number" %}
+
+                    <div class="form-group">
+                        <label for="{{ field.id_for_label }}">
+                            {{ field.label }}
+                        </label>
+
+                        {{ field }}
+
+                        {% for error in field.errors %}
+                            <small class="field-error">{{ error }}</small>
+                        {% endfor %}
+                    </div>
+
+                    {% endif %}
+                {% endfor %}
+
+            </div>
+        </div>
+
+        <!-- ADDRESS -->
+        <div class="form-section">
+
+            <h3>Address Information</h3>
+            <p>Enter supplier business address.</p>
+
+            <div class="form-grid">
+
+                {% for field in form %}
+                    {% if field.name == "address" or field.name == "city" or field.name == "state" or field.name == "pincode" %}
+
+                    <div class="form-group">
+                        <label for="{{ field.id_for_label }}">
+                            {{ field.label }}
+                        </label>
+
+                        {{ field }}
+
+                        {% for error in field.errors %}
+                            <small class="field-error">{{ error }}</small>
+                        {% endfor %}
+                    </div>
+
+                    {% endif %}
+                {% endfor %}
+
+            </div>
+        </div>
+
+        <!-- ACCOUNT INFORMATION -->
+        <div class="form-section">
+
+            <h3>Account Information</h3>
+            <p>Set opening balance and supplier status.</p>
+
+            <div class="form-grid">
+
+                <div class="form-group">
+                    <label for="{{ form.opening_balance.id_for_label }}">
+                        Opening Balance (₹)
+                    </label>
+
+                    {{ form.opening_balance }}
+
+                    {% for error in form.opening_balance.errors %}
+                        <small class="field-error">{{ error }}</small>
+                    {% endfor %}
+                </div>
+
+                <div class="form-group">
+                    <label>Supplier Status</label>
+
+                    <label class="supplier-checkbox">
+                        {{ form.is_active }}
+                        <span>Active Supplier</span>
+                    </label>
+
+                    {% for error in form.is_active.errors %}
+                        <small class="field-error">{{ error }}</small>
+                    {% endfor %}
+                </div>
+
+                <div class="form-group full-width">
+                    <label for="{{ form.notes.id_for_label }}">Notes</label>
+
+                    {{ form.notes }}
+
+                    {% for error in form.notes.errors %}
+                        <small class="field-error">{{ error }}</small>
+                    {% endfor %}
+                </div>
+
+            </div>
+        </div>
+
+        <div class="form-actions">
+
+            <a href="{% url 'suppliers:supplier_list' %}" class="btn-cancel">
+                Cancel
+            </a>
+
+            <button type="submit" class="btn-primary">
+                {{ button_text }}
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+{% endblock %}

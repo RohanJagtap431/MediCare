@@ -1,0 +1,109 @@
+
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/expenses.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="expense-page">
+
+    <div class="expense-header">
+        <div>
+            <h2>{{ page_title|default:"Add Expense Category" }}</h2>
+            <p>Create and organize expense categories.</p>
+        </div>
+
+        <a href="{% url 'expenses:category_list' %}" class="expense-reset-btn">
+            ← Back to Categories
+        </a>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+        <div class="expense-message {{ message.tags }}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="expense-form-panel category-form-panel">
+
+        <div class="expense-form-heading">
+            <div>
+                <h3>Category Information</h3>
+                <p>Enter the category details below.</p>
+            </div>
+            <span class="expense-form-icon">📂</span>
+        </div>
+
+        <form method="POST">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+            <div class="expense-form-error">
+                {{ form.non_field_errors }}
+            </div>
+            {% endif %}
+
+            <div class="expense-form-grid">
+
+                <div class="expense-form-field expense-form-full">
+                    <label for="{{ form.name.id_for_label }}">
+                        Category Name <span>*</span>
+                    </label>
+
+                    {{ form.name }}
+
+                    {% for error in form.name.errors %}
+                    <small class="field-error">{{ error }}</small>
+                    {% endfor %}
+                </div>
+
+                <div class="expense-form-field expense-form-full">
+                    <label for="{{ form.description.id_for_label }}">
+                        Description
+                    </label>
+
+                    {{ form.description }}
+
+                    {% for error in form.description.errors %}
+                    <small class="field-error">{{ error }}</small>
+                    {% endfor %}
+                </div>
+
+                {% if form.is_active %}
+                <div class="expense-form-field expense-form-full">
+                    <label class="category-active-label">
+                        {{ form.is_active }}
+                        Active Category
+                    </label>
+
+                    {% for error in form.is_active.errors %}
+                    <small class="field-error">{{ error }}</small>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+            </div>
+
+            <div class="expense-form-footer">
+                <button type="submit" class="expense-primary-btn">
+                    {{ button_text|default:"Save Category" }}
+                </button>
+
+                <a href="{% url 'expenses:category_list' %}"
+                   class="expense-reset-btn">
+                    Cancel
+                </a>
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

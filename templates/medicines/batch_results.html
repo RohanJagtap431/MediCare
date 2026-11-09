@@ -1,0 +1,125 @@
+
+<div class="table-wrapper">
+
+    <table class="data-table">
+
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Medicine</th>
+                <th>Batch Number</th>
+                <th>Expiry Date</th>
+                <th>Purchase Price</th>
+                <th>MRP</th>
+                <th>Selling Price</th>
+                <th>Quantity</th>
+                <th>Stock Status</th>
+
+                {% if request.user.is_superuser or request.user.role == "ADMIN" %}
+                    <th>Actions</th>
+                {% endif %}
+            </tr>
+        </thead>
+
+        <tbody>
+
+            {% for batch in batches %}
+
+            <tr>
+                <td>{{ forloop.counter0|add:page_obj.start_index }}</td>
+
+                <td>
+                    <strong>{{ batch.medicine.name }}</strong>
+                </td>
+
+                <td>{{ batch.batch_number }}</td>
+
+                <td>{{ batch.expiry_date|date:"d M Y" }}</td>
+
+                <td>₹{{ batch.purchase_price }}</td>
+
+                <td>₹{{ batch.mrp }}</td>
+
+                <td>₹{{ batch.selling_price }}</td>
+
+                <td>{{ batch.quantity }}</td>
+
+                <td>
+                    {% if batch.expiry_date < today %}
+                        <span class="status-badge inactive">Expired</span>
+                    {% elif batch.quantity == 0 %}
+                        <span class="status-badge inactive">Out of Stock</span>
+                    {% elif batch.quantity <= batch.minimum_stock_level %}
+                        <span class="status-badge inactive">Low Stock</span>
+                    {% else %}
+                        <span class="status-badge active">In Stock</span>
+                    {% endif %}
+                </td>
+
+                {% if request.user.is_superuser or request.user.role == "ADMIN" %}
+
+                <td>
+                    <div class="action-buttons">
+
+                        <a href="{% url 'medicines:batch_update' batch.pk %}"
+                           class="btn-edit">
+                            Edit
+                        </a>
+
+                        <form method="POST"
+                              action="{% url 'medicines:batch_delete' batch.pk %}"
+                              onsubmit="return confirm('Delete this batch?');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-delete">
+                                Delete
+                            </button>
+                        </form>
+
+                    </div>
+                </td>
+
+                {% endif %}
+
+            </tr>
+
+            {% empty %}
+
+            <tr>
+                <td colspan="{% if request.user.is_superuser or request.user.role == 'ADMIN' %}10{% else %}9{% endif %}"
+                    class="empty-state">
+                    No medicine batches found.
+                </td>
+            </tr>
+
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+
+</div>
+
+{% if page_obj.paginator.num_pages > 1 %}
+
+<div class="pagination">
+
+    {% if page_obj.has_previous %}
+        <a href="?search={{ search|urlencode }}&page={{ page_obj.previous_page_number }}"
+           class="batch-page-link">Previous</a>
+    {% endif %}
+
+    {% for number in page_numbers %}
+        <a href="?search={{ search|urlencode }}&page={{ number }}"
+           class="batch-page-link {% if page_obj.number == number %}active{% endif %}">
+            {{ number }}
+        </a>
+    {% endfor %}
+
+    {% if page_obj.has_next %}
+        <a href="?search={{ search|urlencode }}&page={{ page_obj.next_page_number }}"
+           class="batch-page-link">Next</a>
+    {% endif %}
+
+</div>
+
+{% endif %}

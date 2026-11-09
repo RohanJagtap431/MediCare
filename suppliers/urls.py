@@ -1,0 +1,17 @@
+
+from django.urls import path
+from . import views
+
+app_name = "suppliers"
+
+urlpatterns = [
+    path("", views.supplier_list, name="supplier_list"),
+
+    path("add/", views.supplier_create, name="supplier_create"),
+
+    path("<int:pk>/edit/", views.supplier_update, name="supplier_update"),
+
+    path("<int:pk>/delete/", views.supplier_delete, name="supplier_delete"),
+
+    path("<int:pk>/toggle-status/", views.supplier_toggle_status, name="supplier_toggle_status"),
+]

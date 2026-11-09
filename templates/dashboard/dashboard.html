@@ -1,0 +1,272 @@
+
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Dashboard | MediCare{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="dashboard-page">
+
+    <!-- PAGE HEADER -->
+    <div class="dashboard-header">
+        <div>
+            <h1>Dashboard</h1>
+            <p>
+                Welcome back, {{ request.user.username }}!
+                Here's your store overview.
+            </p>
+        </div>
+
+        <div class="dashboard-date">
+            📅 {{ today|date:"d M Y" }}
+        </div>
+    </div>
+
+    <!-- QUICK ACTIONS -->
+    <div class="dashboard-quick-actions">
+
+        <a href="{% url 'sales:sale_create' %}" class="quick-action-btn">
+            🧾 Create Bill
+        </a>
+
+        <a href="{% url 'sales:bill_list' %}" class="quick-action-btn secondary">
+            📋 View Bills
+        </a>
+
+        {% if is_admin %}
+        <a href="{% url 'purchases:purchase_list' %}" class="quick-action-btn secondary">
+            🛒 Purchases
+        </a>
+
+        <a href="{% url 'expenses:expense_list' %}" class="quick-action-btn secondary">
+            💸 Expenses
+        </a>
+        {% endif %}
+
+    </div>
+
+    <!-- SALES SUMMARY -->
+    <div class="dashboard-section">
+        <div class="dashboard-section-heading">
+            <h2>Sales Overview</h2>
+            <span>Today's performance</span>
+        </div>
+
+        <div class="dashboard-stats-grid">
+
+            <div class="dashboard-stat-card">
+                <div class="dashboard-stat-top">
+                    <span>Today's Sales</span>
+                    <span class="dashboard-stat-icon blue">💰</span>
+                </div>
+                <h3>₹{{ today_sales_amount|floatformat:2 }}</h3>
+                <p>Total sales amount</p>
+            </div>
+
+            <div class="dashboard-stat-card">
+                <div class="dashboard-stat-top">
+                    <span>Today's Bills</span>
+                    <span class="dashboard-stat-icon purple">🧾</span>
+                </div>
+                <h3>{{ today_bills_count }}</h3>
+                <p>Generated bills</p>
+            </div>
+
+            <div class="dashboard-stat-card">
+                <div class="dashboard-stat-top">
+                    <span>Low Stock Batches</span>
+                    <span class="dashboard-stat-icon orange">📦</span>
+                </div>
+                <h3>{{ low_stock_count }}</h3>
+                <p>Need stock attention</p>
+            </div>
+
+            <div class="dashboard-stat-card">
+                <div class="dashboard-stat-top">
+                    <span>Expired Batches</span>
+                    <span class="dashboard-stat-icon red">⚠️</span>
+                </div>
+                <h3>{{ expired_count }}</h3>
+                <p>Expired batches with stock</p>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ADMIN ONLY SUMMARY -->
+    {% if is_admin %}
+    <div class="dashboard-section">
+
+        <div class="dashboard-section-heading">
+            <h2>Business Overview</h2>
+            <span>Admin only</span>
+        </div>
+
+        <div class="dashboard-stats-grid dashboard-admin-grid">
+
+            <div class="dashboard-stat-card">
+                <div class="dashboard-stat-top">
+                    <span>Today's Purchases</span>
+                    <span class="dashboard-stat-icon green">🛒</span>
+                </div>
+                <h3>₹{{ today_purchases_amount|floatformat:2 }}</h3>
+                <p>{{ today_purchases_count }} received purchases</p>
+            </div>
+
+            <div class="dashboard-stat-card">
+                <div class="dashboard-stat-top">
+                    <span>Today's Expenses</span>
+                    <span class="dashboard-stat-icon orange">💸</span>
+                </div>
+                <h3>₹{{ today_expenses_amount|floatformat:2 }}</h3>
+                <p>{{ today_expenses_count }} expense records</p>
+            </div>
+
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- RECENT BILLS -->
+    <div class="dashboard-section">
+        <div class="dashboard-section-heading">
+            <div>
+                <h2>Recent Bills</h2>
+                <span>Latest 5 bills</span>
+            </div>
+
+            <a href="{% url 'sales:bill_list' %}" class="dashboard-view-all">
+                View All →
+            </a>
+        </div>
+
+        <div class="dashboard-panel">
+            <div class="dashboard-table-wrapper">
+                <table class="dashboard-table">
+                    <thead>
+                        <tr>
+                            <th>Invoice</th>
+                            <th>Customer</th>
+                            <th>Date</th>
+                            <th>Amount</th>
+                            <th>Payment Status</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for bill in recent_bills %}
+                        <tr>
+                            <td>
+                                <strong>{{ bill.invoice_number }}</strong>
+                            </td>
+
+                            <td>
+                                {% if bill.customer %}
+                                    {{ bill.customer.customer_name }}
+                                {% else %}
+                                    Walk-in Customer
+                                {% endif %}
+                            </td>
+
+                            <td>{{ bill.sale_date|date:"d M Y" }}</td>
+
+                            <td>₹{{ bill.total_amount|floatformat:2 }}</td>
+
+                            <td>
+                                <span class="dashboard-status {{ bill.payment_status|lower }}">
+                                    {{ bill.get_payment_status_display }}
+                                </span>
+                            </td>
+                        </tr>
+
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="dashboard-empty">
+                                No bills available yet.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- STOCK ALERTS -->
+    <div class="dashboard-bottom-grid">
+
+        <!-- LOW STOCK -->
+        <div class="dashboard-panel">
+            <div class="dashboard-panel-heading">
+                <div>
+                    <h3>Low Stock Medicines</h3>
+                    <p>Stock requiring attention</p>
+                </div>
+
+                <a href="{% url 'inventory:stock_list' %}">View All →</a>
+            </div>
+
+            <div class="dashboard-alert-list">
+
+                {% for batch in low_stock_batches %}
+                <div class="dashboard-alert-item">
+                    <div>
+                        <strong>{{ batch.medicine.name }}</strong>
+                        <span>Batch: {{ batch.batch_number }}</span>
+                    </div>
+
+                    <span class="dashboard-alert-value">
+                        {{ batch.quantity }} left
+                    </span>
+                </div>
+                {% empty %}
+                <div class="dashboard-empty">
+                    No low stock batches found.
+                </div>
+                {% endfor %}
+
+            </div>
+        </div>
+
+        <!-- EXPIRY ALERTS -->
+        <div class="dashboard-panel">
+            <div class="dashboard-panel-heading">
+                <div>
+                    <h3>Expiry Alerts</h3>
+                    <p>Expiring within 30 days</p>
+                </div>
+
+                <a href="{% url 'inventory:expiry_list' %}">View All →</a>
+            </div>
+
+            <div class="dashboard-alert-list">
+
+                {% for batch in expiring_batches %}
+                <div class="dashboard-alert-item">
+                    <div>
+                        <strong>{{ batch.medicine.name }}</strong>
+                        <span>Batch: {{ batch.batch_number }}</span>
+                    </div>
+
+                    <span class="dashboard-alert-value warning">
+                        {{ batch.expiry_date|date:"d M Y" }}
+                    </span>
+                </div>
+                {% empty %}
+                <div class="dashboard-empty">
+                    No upcoming expiry batches found.
+                </div>
+                {% endfor %}
+
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

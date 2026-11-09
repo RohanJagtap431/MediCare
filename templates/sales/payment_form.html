@@ -1,0 +1,314 @@
+
+{% extends "base.html" %}
+
+{% block title %}Receive Payment | MediCare{% endblock %}
+
+{% block extra_css %}
+<style>
+
+.payment-wrapper {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+.payment-card {
+    width: 100%;
+    min-height: calc(100vh - 220px);
+    box-sizing: border-box;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 35px 40px;
+}
+
+.payment-header {
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.payment-header h2 {
+    margin: 0 0 8px;
+    color: #172033;
+    font-size: 25px;
+}
+
+.payment-header p {
+    color: #64748b;
+    font-size: 14px;
+    margin: 0;
+}
+
+.bill-summary {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+    margin-bottom: 30px;
+}
+
+.summary-box {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 22px;
+}
+
+.summary-box span {
+    display: block;
+    color: #64748b;
+    font-size: 13px;
+    margin-bottom: 10px;
+}
+
+.summary-box strong {
+    color: #172033;
+    font-size: 21px;
+    overflow-wrap: anywhere;
+}
+
+.summary-box.balance {
+    background: #eff6ff;
+    border-color: #bfdbfe;
+}
+
+.summary-box.balance strong {
+    color: #1d4ed8;
+}
+
+.form-group {
+    margin-bottom: 23px;
+    width: 100%;
+}
+
+.form-group label {
+    display: block;
+    color: #334155;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 9px;
+}
+
+.form-control {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 14px 15px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    outline: none;
+    background: #fff;
+    color: #172033;
+    font-size: 15px;
+    transition: .2s;
+}
+
+.form-control:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, .1);
+}
+
+textarea.form-control {
+    resize: vertical;
+    min-height: 110px;
+}
+
+.field-error {
+    color: #dc2626;
+    font-size: 12px;
+    margin-top: 6px;
+}
+
+.payment-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 30px;
+    padding-top: 22px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.payment-btn {
+    border: none;
+    border-radius: 8px;
+    padding: 13px 25px;
+    background: #2563eb;
+    color: #fff;
+    text-decoration: none;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: .2s;
+}
+
+.payment-btn:hover {
+    background: #1d4ed8;
+    color: #fff;
+}
+
+.payment-btn.secondary {
+    background: #64748b;
+}
+
+.payment-btn.secondary:hover {
+    background: #475569;
+}
+
+@media(max-width: 768px) {
+    .payment-card {
+        padding: 22px 18px;
+        min-height: auto;
+    }
+
+    .bill-summary {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .summary-box {
+        padding: 16px;
+    }
+
+    .summary-box strong {
+        font-size: 18px;
+    }
+}
+
+@media(max-width: 480px) {
+    .payment-actions {
+        flex-direction: column-reverse;
+    }
+
+    .payment-btn {
+        width: 100%;
+        box-sizing: border-box;
+        text-align: center;
+    }
+}
+
+</style>
+{% endblock %}
+
+
+{% block content %}
+
+<div class="payment-wrapper">
+
+    <div class="payment-card">
+
+        <div class="payment-header">
+            <h2>Receive Payment</h2>
+            <p>Record a payment against an existing customer bill.</p>
+        </div>
+
+
+        <!-- Bill Summary -->
+
+        <div class="bill-summary">
+
+            <div class="summary-box">
+                <span>Invoice Number</span>
+                <strong>{{ sale.invoice_number }}</strong>
+            </div>
+
+            <div class="summary-box">
+                <span>Bill Total</span>
+                <strong>₹{{ sale.total_amount|floatformat:2 }}</strong>
+            </div>
+
+            <div class="summary-box balance">
+                <span>Remaining Balance</span>
+                <strong>₹{{ remaining_balance|floatformat:2 }}</strong>
+            </div>
+
+        </div>
+
+
+        <!-- Payment Form -->
+
+        <form method="POST">
+
+            {% csrf_token %}
+
+            <div class="form-group">
+
+                <label for="{{ form.amount.id_for_label }}">
+                    Payment Amount (₹)
+                </label>
+
+                {{ form.amount }}
+
+                {% for error in form.amount.errors %}
+                    <div class="field-error">{{ error }}</div>
+                {% endfor %}
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="{{ form.payment_method.id_for_label }}">
+                    Payment Method
+                </label>
+
+                {{ form.payment_method }}
+
+                {% for error in form.payment_method.errors %}
+                    <div class="field-error">{{ error }}</div>
+                {% endfor %}
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="{{ form.transaction_reference.id_for_label }}">
+                    Transaction Reference
+                </label>
+
+                {{ form.transaction_reference }}
+
+                {% for error in form.transaction_reference.errors %}
+                    <div class="field-error">{{ error }}</div>
+                {% endfor %}
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="{{ form.notes.id_for_label }}">
+                    Notes
+                </label>
+
+                {{ form.notes }}
+
+                {% for error in form.notes.errors %}
+                    <div class="field-error">{{ error }}</div>
+                {% endfor %}
+
+            </div>
+
+
+            <div class="payment-actions">
+
+                <a href="{% url 'sales:sale_invoice' sale.id %}"
+                   class="payment-btn secondary">
+                    Cancel
+                </a>
+
+                <button type="submit" class="payment-btn">
+                    Receive Payment
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

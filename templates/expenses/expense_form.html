@@ -1,0 +1,170 @@
+
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/expenses.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="expense-page">
+
+    <!-- Header -->
+    <div class="expense-header">
+        <div>
+            <h2>{{ page_title|default:"Add Expense" }}</h2>
+            <p>Record and manage your medical store expenses.</p>
+        </div>
+
+        <a href="{% url 'expenses:expense_list' %}" class="expense-reset-btn">
+            ← Back to Expenses
+        </a>
+    </div>
+
+    <!-- Form Panel -->
+    <div class="expense-form-panel">
+
+        <div class="expense-form-heading">
+            <div>
+                <h3>Expense Information</h3>
+                <p>Enter the details of your expense below.</p>
+            </div>
+            <span class="expense-form-icon">💸</span>
+        </div>
+
+        <form method="POST">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+            <div class="expense-form-error">
+                {{ form.non_field_errors }}
+            </div>
+            {% endif %}
+
+            <div class="expense-form-grid">
+
+                <!-- Category -->
+                <div class="expense-form-field">
+                    <label for="{{ form.category.id_for_label }}">
+                        Expense Category <span>*</span>
+                    </label>
+
+                    {{ form.category }}
+
+                    {% for error in form.category.errors %}
+                    <small class="field-error">{{ error }}</small>
+                    {% endfor %}
+
+                    {% if not form.category.field.queryset.exists %}
+                    <small class="field-hint">
+                        No active categories available.
+                        <a href="{% url 'expenses:category_create' %}">
+                            Add Category
+                        </a>
+                    </small>
+                    {% endif %}
+                </div>
+
+                <!-- Title -->
+                <div class="expense-form-field">
+                    <label for="{{ form.title.id_for_label }}">
+                        Expense Title <span>*</span>
+                    </label>
+
+                    {{ form.title }}
+
+                    {% for error in form.title.errors %}
+                    <small class="field-error">{{ error }}</small>
+                    {% endfor %}
+                </div>
+
+                <!-- Amount -->
+                <div class="expense-form-field">
+                    <label for="{{ form.amount.id_for_label }}">
+                        Amount (₹) <span>*</span>
+                    </label>
+
+                    {{ form.amount }}
+
+                    {% for error in form.amount.errors %}
+                    <small class="field-error">{{ error }}</small>
+                    {% endfor %}
+                </div>
+
+                <!-- Date -->
+                <div class="expense-form-field">
+                    <label for="{{ form.expense_date.id_for_label }}">
+                        Expense Date <span>*</span>
+                    </label>
+
+                    {{ form.expense_date }}
+
+                    {% for error in form.expense_date.errors %}
+                    <small class="field-error">{{ error }}</small>
+                    {% endfor %}
+                </div>
+
+                <!-- Payment Method -->
+                <div class="expense-form-field">
+                    <label for="{{ form.payment_method.id_for_label }}">
+                        Payment Method <span>*</span>
+                    </label>
+
+                    {{ form.payment_method }}
+
+                    {% for error in form.payment_method.errors %}
+                    <small class="field-error">{{ error }}</small>
+                    {% endfor %}
+                </div>
+
+                <!-- Reference -->
+                <div class="expense-form-field">
+                    <label for="{{ form.reference_number.id_for_label }}">
+                        Reference Number
+                    </label>
+
+                    {{ form.reference_number }}
+
+                    {% for error in form.reference_number.errors %}
+                    <small class="field-error">{{ error }}</small>
+                    {% endfor %}
+                </div>
+
+                <!-- Description -->
+                <div class="expense-form-field expense-form-full">
+                    <label for="{{ form.description.id_for_label }}">
+                        Description
+                    </label>
+
+                    {{ form.description }}
+
+                    {% for error in form.description.errors %}
+                    <small class="field-error">{{ error }}</small>
+                    {% endfor %}
+                </div>
+
+
+            </div>
+
+            <!-- Form Actions -->
+            <div class="expense-form-footer">
+
+                <button type="submit" class="expense-primary-btn">
+                    {{ button_text|default:"Save Expense" }}
+                </button>
+
+                <a href="{% url 'expenses:expense_list' %}"
+                   class="expense-reset-btn">
+                    Cancel
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,535 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+.stock-report-page {
+    width: 100%;
+    min-width: 0;
+    padding: 24px;
+    color: #1e293b;
+}
+
+/* Header */
+.stock-report-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 24px;
+}
+
+.stock-report-header h2 {
+    margin: 0;
+    font-size: 25px;
+    font-weight: 700;
+}
+
+.stock-report-header p {
+    margin: 7px 0 0;
+    color: #64748b;
+    font-size: 14px;
+}
+
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 10px 16px;
+    background: #2563eb;
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.back-link:hover {
+    background: #1d4ed8;
+    color: white;
+}
+
+/* Summary */
+.stock-summary {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.stock-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 21px;
+    min-width: 0;
+}
+
+.stock-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 17px;
+}
+
+.stock-card-label {
+    margin: 0;
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.stock-card-icon {
+    width: 39px;
+    height: 39px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.stock-card-value {
+    margin: 0;
+    font-size: 25px;
+    font-weight: 750;
+    overflow-wrap: anywhere;
+}
+
+.stock-card-note {
+    margin: 10px 0 0;
+    color: #94a3b8;
+    font-size: 12px;
+}
+
+.stock-blue .stock-card-icon {
+    background: #eff6ff;
+}
+.stock-blue .stock-card-value {
+    color: #2563eb;
+}
+
+.stock-green .stock-card-icon {
+    background: #f0fdf4;
+}
+.stock-green .stock-card-value {
+    color: #15803d;
+}
+
+.stock-purple .stock-card-icon {
+    background: #faf5ff;
+}
+.stock-purple .stock-card-value {
+    color: #7c3aed;
+}
+
+.stock-teal .stock-card-icon {
+    background: #f0fdfa;
+}
+.stock-teal .stock-card-value {
+    color: #0f766e;
+}
+
+.stock-red .stock-card-icon {
+    background: #fef2f2;
+}
+.stock-red .stock-card-value {
+    color: #dc2626;
+}
+
+/* Information */
+.stock-info {
+    margin-bottom: 22px;
+    padding: 15px 17px;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 10px;
+    color: #1e40af;
+    font-size: 13px;
+    line-height: 1.7;
+}
+
+/* Table Section */
+.stock-table-section {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.stock-table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    padding: 20px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.stock-table-header h3 {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 700;
+}
+
+.stock-search-form {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+    max-width: 340px;
+}
+
+.stock-search-form input {
+    flex: 1;
+    min-width: 0;
+    padding: 10px 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 13px;
+}
+
+.stock-search-form input:focus {
+    outline: none;
+    border-color: #2563eb;
+}
+
+.stock-search-form button {
+    padding: 10px 16px;
+    border: 0;
+    border-radius: 8px;
+    background: #2563eb;
+    color: white;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.stock-search-form button:hover {
+    background: #1d4ed8;
+}
+
+.stock-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.stock-table {
+    width: 100%;
+    min-width: 1050px;
+    border-collapse: collapse;
+}
+
+.stock-table th {
+    padding: 14px 15px;
+    background: #f8fafc;
+    color: #64748b;
+    text-align: left;
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.stock-table td {
+    padding: 15px;
+    color: #334155;
+    font-size: 13px;
+    border-bottom: 1px solid #f1f5f9;
+    white-space: nowrap;
+}
+
+.stock-table tbody tr:hover {
+    background: #f8fafc;
+}
+
+.stock-medicine-name {
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.stock-muted {
+    color: #94a3b8;
+}
+
+/* Status */
+.stock-status {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.status-expired {
+    background: #fef2f2;
+    color: #dc2626;
+}
+
+.status-out {
+    background: #f1f5f9;
+    color: #64748b;
+}
+
+.status-low {
+    background: #fff7ed;
+    color: #c2410c;
+}
+
+.status-available {
+    background: #f0fdf4;
+    color: #15803d;
+}
+
+.stock-empty {
+    padding: 45px 20px !important;
+    text-align: center;
+    color: #94a3b8 !important;
+}
+
+/* Responsive */
+@media (max-width: 1100px) {
+    .stock-summary {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 600px) {
+    .stock-report-page {
+        padding: 15px;
+    }
+
+    .stock-report-header h2 {
+        font-size: 21px;
+    }
+
+    .back-link {
+        width: 100%;
+        justify-content: center;
+        box-sizing: border-box;
+    }
+
+    .stock-summary {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .stock-card {
+        padding: 18px;
+    }
+
+    .stock-card-value {
+        font-size: 23px;
+    }
+
+    .stock-table-header {
+        align-items: stretch;
+        padding: 16px;
+    }
+
+    .stock-search-form {
+        max-width: none;
+    }
+
+    .stock-info {
+        font-size: 12px;
+    }
+}
+</style>
+
+<div class="stock-report-page">
+
+    <!-- Header -->
+    <div class="stock-report-header">
+        <div>
+            <h2>Stock Valuation Report</h2>
+            <p>Analyze medicine inventory and estimated stock value.</p>
+        </div>
+
+        <a href="{% url 'reports:reports_dashboard' %}"
+           class="back-link">
+            ← Back to Reports
+        </a>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="stock-summary">
+
+        <div class="stock-card stock-blue">
+            <div class="stock-card-header">
+                <p class="stock-card-label">Available Stock</p>
+                <span class="stock-card-icon">📦</span>
+            </div>
+            <h3 class="stock-card-value">
+                {{ total_stock_quantity }}
+            </h3>
+            <p class="stock-card-note">Non-expired stock quantity</p>
+        </div>
+
+        <div class="stock-card stock-green">
+            <div class="stock-card-header">
+                <p class="stock-card-label">Purchase Value</p>
+                <span class="stock-card-icon">💰</span>
+            </div>
+            <h3 class="stock-card-value">
+                ₹{{ total_purchase_value|floatformat:2 }}
+            </h3>
+            <p class="stock-card-note">Value of available stock at purchase price</p>
+        </div>
+
+        <div class="stock-card stock-purple">
+            <div class="stock-card-header">
+                <p class="stock-card-label">MRP Value</p>
+                <span class="stock-card-icon">🏷️</span>
+            </div>
+            <h3 class="stock-card-value">
+                ₹{{ total_mrp_value|floatformat:2 }}
+            </h3>
+            <p class="stock-card-note">Potential value at MRP</p>
+        </div>
+
+        <div class="stock-card stock-teal">
+            <div class="stock-card-header">
+                <p class="stock-card-label">Estimated MRP Margin</p>
+                <span class="stock-card-icon">📈</span>
+            </div>
+            <h3 class="stock-card-value">
+                ₹{{ estimated_margin|floatformat:2 }}
+            </h3>
+            <p class="stock-card-note">MRP value minus purchase value</p>
+        </div>
+
+        <div class="stock-card stock-red">
+            <div class="stock-card-header">
+                <p class="stock-card-label">Expired Stock Value</p>
+                <span class="stock-card-icon">⚠️</span>
+            </div>
+            <h3 class="stock-card-value">
+                ₹{{ expired_stock_value|floatformat:2 }}
+            </h3>
+            <p class="stock-card-note">
+                {{ expired_stock_quantity }} expired units
+            </p>
+        </div>
+
+    </div>
+
+    <!-- Information -->
+    <div class="stock-info">
+        <strong>Important:</strong>
+        Available stock valuation excludes expired and zero-quantity batches.
+        Estimated MRP Margin is not actual profit. Expired stock value is
+        displayed separately and should not be treated as saleable inventory.
+    </div>
+
+    <!-- Stock Table -->
+    <div class="stock-table-section">
+
+        <div class="stock-table-header">
+
+            <h3>Medicine Batch Valuation</h3>
+
+            <form method="GET" class="stock-search-form">
+                <input
+                    type="text"
+                    name="q"
+                    placeholder="Search medicine or batch..."
+                    value="{{ search_query }}"
+                >
+                <button type="submit">Search</button>
+            </form>
+
+        </div>
+
+        <div class="stock-table-wrapper">
+
+            <table class="stock-table">
+
+                <thead>
+                    <tr>
+                        <th>Medicine Name</th>
+                        <th>Batch Number</th>
+                        <th>Expiry Date</th>
+                        <th>Quantity</th>
+                        <th>Purchase Price</th>
+                        <th>MRP</th>
+                        <th>Purchase Value</th>
+                        <th>MRP Value</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for batch in batches %}
+
+                    <tr>
+                        <td>
+                            <span class="stock-medicine-name">
+                                {{ batch.medicine.name }}
+                            </span>
+                        </td>
+
+                        <td>{{ batch.batch_number }}</td>
+
+                        <td>{{ batch.expiry_date|date:"d M Y" }}</td>
+
+                        <td>{{ batch.quantity }}</td>
+
+                        <td>₹{{ batch.purchase_price|floatformat:2 }}</td>
+
+                        <td>₹{{ batch.mrp|floatformat:2 }}</td>
+
+                        <td>
+                            ₹{{ batch.stock_purchase_value|floatformat:2 }}
+                        </td>
+
+                        <td>
+                            ₹{{ batch.stock_mrp_value|floatformat:2 }}
+                        </td>
+
+                        <td>
+                            {% if batch.valuation_status == "EXPIRED" %}
+                                <span class="stock-status status-expired">
+                                    Expired
+                                </span>
+                            {% elif batch.valuation_status == "OUT" %}
+                                <span class="stock-status status-out">
+                                    Out of Stock
+                                </span>
+                            {% elif batch.valuation_status == "LOW" %}
+                                <span class="stock-status status-low">
+                                    Low Stock
+                                </span>
+                            {% else %}
+                                <span class="stock-status status-available">
+                                    Available
+                                </span>
+                            {% endif %}
+                        </td>
+                    </tr>
+
+                    {% empty %}
+
+                    <tr>
+                        <td colspan="9" class="stock-empty">
+                            No medicine batches found.
+                        </td>
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

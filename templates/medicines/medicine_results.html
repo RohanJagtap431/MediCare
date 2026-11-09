@@ -1,0 +1,220 @@
+
+<div class="medicine-results-content">
+
+    <!-- TOOLBAR -->
+    <div class="category-toolbar">
+        <span class="category-count">
+            Total: {{ page_obj.paginator.count }} medicines
+        </span>
+    </div>
+
+    <!-- TABLE -->
+    <div class="table-wrapper">
+
+        <table class="category-table medicine-table">
+
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Medicine Name</th>
+                    <th>Generic Name</th>
+                    <th>Category</th>
+                    <th>Manufacturer</th>
+                    <th>Strength</th>
+                    <th>Dosage Form</th>
+                    <th>Pack Size</th>
+                    <th>Prescription</th>
+                    <th>Status</th>
+
+                    {% if request.user.is_superuser or request.user.role == "ADMIN" %}
+                        <th>Actions</th>
+                    {% endif %}
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for medicine in medicines %}
+
+                <tr>
+
+                    <td>
+                        {{ page_obj.start_index|add:forloop.counter0 }}
+                    </td>
+
+                    <td class="category-name">
+                        {{ medicine.name }}
+                    </td>
+
+                    <td>
+                        {{ medicine.generic_name|default:"-" }}
+                    </td>
+
+                    <td>
+                        {{ medicine.category.name }}
+                    </td>
+
+                    <td>
+                        {{ medicine.manufacturer.name|default:"-" }}
+                    </td>
+
+                    <td>
+                        {{ medicine.strength|default:"-" }}
+                    </td>
+
+                    <td>
+                        {{ medicine.get_dosage_form_display }}
+                    </td>
+
+                    <td>
+                        {{ medicine.pack_size|default:"-" }}
+                    </td>
+
+                    <!-- PRESCRIPTION -->
+                    <td>
+                        {% if medicine.requires_prescription %}
+                            <span class="status-inactive">Required</span>
+                        {% else %}
+                            <span class="status-active">Not Required</span>
+                        {% endif %}
+                    </td>
+
+                    <!-- STATUS -->
+                    <td>
+                        {% if medicine.is_active %}
+                            <span class="status-active">Active</span>
+                        {% else %}
+                            <span class="status-inactive">Inactive</span>
+                        {% endif %}
+                    </td>
+
+                    <!-- ADMIN ACTIONS -->
+                    {% if request.user.is_superuser or request.user.role == "ADMIN" %}
+
+                    <td>
+                        <div class="action-buttons">
+
+                            <!-- EDIT -->
+                            <a
+                                href="{% url 'medicines:medicine_update' medicine.pk %}"
+                                class="action-edit">
+                                Edit
+                            </a>
+
+                            <!-- ACTIVATE / DEACTIVATE -->
+                            <form
+                                method="POST"
+                                action="{% url 'medicines:medicine_toggle_status' medicine.pk %}">
+
+                                {% csrf_token %}
+
+                                <button
+                                    type="submit"
+                                    class="{% if medicine.is_active %}action-status{% else %}action-activate{% endif %}"
+                                    data-confirm="{% if medicine.is_active %}Are you sure you want to deactivate this medicine?{% else %}Are you sure you want to activate this medicine?{% endif %}">
+
+                                    {% if medicine.is_active %}
+                                        Deactivate
+                                    {% else %}
+                                        Activate
+                                    {% endif %}
+
+                                </button>
+
+                            </form>
+
+                            <!-- DELETE -->
+                            <form
+                                method="POST"
+                                action="{% url 'medicines:medicine_delete' medicine.pk %}"
+                                data-prevent-double-submit>
+
+                                {% csrf_token %}
+
+                                <button
+                                    type="submit"
+                                    class="action-delete"
+                                    data-confirm="Are you sure you want to delete this medicine?">
+                                    Delete
+                                </button>
+
+                            </form>
+
+                        </div>
+                    </td>
+
+                    {% endif %}
+
+                </tr>
+
+                {% empty %}
+
+                <tr>
+                    <td colspan="{% if request.user.is_superuser or request.user.role == 'ADMIN' %}11{% else %}10{% endif %}" class="empty-state">
+                        No medicines found.
+                    </td>
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+
+    <!-- PAGINATION -->
+    {% if page_obj.has_other_pages %}
+
+    <div class="pagination-container">
+
+        <span class="pagination-info">
+            Showing {{ page_obj.start_index }}–{{ page_obj.end_index }}
+            of {{ page_obj.paginator.count }} records
+        </span>
+
+        <nav class="pagination" aria-label="Medicine pages">
+
+            {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}&search={{ search|urlencode }}"
+                   class="page-link"
+                   aria-label="Previous page">
+                    ‹
+                </a>
+            {% else %}
+                <span class="page-link disabled">‹</span>
+            {% endif %}
+
+            {% for num in page_numbers %}
+
+                {% if page_obj.number == num %}
+                    <span class="page-link current" aria-current="page">
+                        {{ num }}
+                    </span>
+                {% else %}
+                    <a href="?page={{ num }}&search={{ search|urlencode }}"
+                       class="page-link">
+                        {{ num }}
+                    </a>
+                {% endif %}
+
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}&search={{ search|urlencode }}"
+                   class="page-link"
+                   aria-label="Next page">
+                    ›
+                </a>
+            {% else %}
+                <span class="page-link disabled">›</span>
+            {% endif %}
+
+        </nav>
+
+    </div>
+
+    {% endif %}
+
+</div>

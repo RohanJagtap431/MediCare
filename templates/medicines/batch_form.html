@@ -1,0 +1,148 @@
+
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ page_title }} | MediCare{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/medicines.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <div>
+        <h1>{{ page_title }}</h1>
+        <p>Manage medicine batch details, pricing and stock.</p>
+    </div>
+
+    <a href="{% url 'medicines:batch_list' %}" class="btn-secondary">
+        ← Back to Batches
+    </a>
+</div>
+
+<div class="form-card">
+
+    <form method="POST">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+            <div class="form-error-box">
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+
+        <div class="form-section">
+            <h3>Medicine & Batch Information</h3>
+            <p>Enter medicine and batch identification details.</p>
+
+            <div class="form-grid">
+
+                <div class="form-group">
+                    <label for="{{ form.medicine.id_for_label }}">Medicine *</label>
+                    {{ form.medicine }}
+                    {% for error in form.medicine.errors %}
+                        <small class="field-error">{{ error }}</small>
+                    {% endfor %}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.batch_number.id_for_label }}">Batch Number *</label>
+                    {{ form.batch_number }}
+                    {% for error in form.batch_number.errors %}
+                        <small class="field-error">{{ error }}</small>
+                    {% endfor %}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.manufacturing_date.id_for_label }}">Manufacturing Date</label>
+                    {{ form.manufacturing_date }}
+                    {% for error in form.manufacturing_date.errors %}
+                        <small class="field-error">{{ error }}</small>
+                    {% endfor %}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.expiry_date.id_for_label }}">Expiry Date *</label>
+                    {{ form.expiry_date }}
+                    {% for error in form.expiry_date.errors %}
+                        <small class="field-error">{{ error }}</small>
+                    {% endfor %}
+                </div>
+
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h3>Pricing Information</h3>
+            <p>Enter purchase price and selling price details.</p>
+
+            <div class="form-grid">
+
+                <div class="form-group">
+                    <label for="{{ form.purchase_price.id_for_label }}">Purchase Price (₹) *</label>
+                    {{ form.purchase_price }}
+                    {% for error in form.purchase_price.errors %}
+                        <small class="field-error">{{ error }}</small>
+                    {% endfor %}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.mrp.id_for_label }}">MRP (₹) *</label>
+                    {{ form.mrp }}
+                    {% for error in form.mrp.errors %}
+                        <small class="field-error">{{ error }}</small>
+                    {% endfor %}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.selling_price.id_for_label }}">Selling Price (₹) *</label>
+                    {{ form.selling_price }}
+                    {% for error in form.selling_price.errors %}
+                        <small class="field-error">{{ error }}</small>
+                    {% endfor %}
+                </div>
+
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h3>Stock Information</h3>
+            <p>Set the initial quantity and low-stock alert level.</p>
+
+            <div class="form-grid">
+
+                <div class="form-group">
+                    <label for="{{ form.quantity.id_for_label }}">Quantity *</label>
+                    {{ form.quantity }}
+                    {% for error in form.quantity.errors %}
+                        <small class="field-error">{{ error }}</small>
+                    {% endfor %}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.minimum_stock_level.id_for_label }}">Minimum Stock Level *</label>
+                    {{ form.minimum_stock_level }}
+                    {% for error in form.minimum_stock_level.errors %}
+                        <small class="field-error">{{ error }}</small>
+                    {% endfor %}
+                </div>
+
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <a href="{% url 'medicines:batch_list' %}" class="btn-cancel">
+                Cancel
+            </a>
+
+            <button type="submit" class="btn-primary">
+                {{ button_text }}
+            </button>
+        </div>
+
+    </form>
+
+</div>
+
+{% endblock %}

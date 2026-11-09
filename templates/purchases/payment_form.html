@@ -1,0 +1,423 @@
+
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Record Payment | MediCare{% endblock %}
+
+{% block extra_css %}
+<style>
+.payment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+.payment-header h2 {
+    margin: 0;
+    color: #172033;
+    font-size: 23px;
+    font-weight: 700;
+}
+
+.payment-header p {
+    margin: 5px 0 0;
+    color: #718096;
+    font-size: 13px;
+}
+
+.back-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 16px;
+    border: 1px solid #dbe1ea;
+    border-radius: 8px;
+    background: white;
+    color: #334155;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.back-btn:hover {
+    background: #f8fafc;
+}
+
+.payment-card {
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.payment-card-header {
+    padding: 17px 22px;
+    border-bottom: 1px solid #edf0f4;
+}
+
+.payment-card-header h3 {
+    margin: 0;
+    color: #172033;
+    font-size: 17px;
+}
+
+.payment-card-body {
+    padding: 22px;
+}
+
+/* Purchase Summary */
+
+.purchase-summary {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+    margin-bottom: 22px;
+    padding: 18px;
+    background: #f8fafc;
+    border: 1px solid #edf0f4;
+    border-radius: 9px;
+}
+
+.summary-item {
+    min-width: 0;
+}
+
+.summary-item label {
+    display: block;
+    color: #94a3b8;
+    font-size: 11px;
+    margin-bottom: 6px;
+}
+
+.summary-item strong {
+    color: #334155;
+    font-size: 14px;
+    overflow-wrap: anywhere;
+}
+
+.remaining-amount {
+    color: #dc2626 !important;
+    font-size: 17px !important;
+}
+
+/* Form */
+
+.payment-card-body form {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 20px;
+    row-gap: 0;
+}
+
+.form-group {
+    min-width: 0;
+    margin-bottom: 17px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 7px;
+    color: #334155;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.form-control,
+.payment-card-body input,
+.payment-card-body select,
+.payment-card-body textarea {
+    display: block;
+    width: 100%;
+    min-height: 43px;
+    padding: 10px 13px;
+    border: 1px solid #dbe1ea;
+    border-radius: 8px;
+    background: white;
+    color: #334155;
+    font-size: 13px;
+    outline: none;
+    box-sizing: border-box;
+}
+
+.form-control:focus,
+.payment-card-body input:focus,
+.payment-card-body select:focus,
+.payment-card-body textarea:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, .08);
+}
+
+.payment-card-body textarea {
+    min-height: 85px;
+    resize: vertical;
+}
+
+.form-group:nth-of-type(4) {
+    grid-column: 1 / -1;
+}
+
+.field-error {
+    display: block;
+    margin-top: 5px;
+    color: #dc2626;
+    font-size: 12px;
+}
+
+.error-box {
+    grid-column: 1 / -1;
+    margin-bottom: 15px;
+    padding: 12px 14px;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+    color: #b91c1c;
+    font-size: 13px;
+}
+
+/* Actions */
+
+.form-actions {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 10px;
+    padding-top: 16px;
+    border-top: 1px solid #edf0f4;
+}
+
+.cancel-btn,
+.submit-btn {
+    min-width: 125px;
+    padding: 11px 18px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.cancel-btn {
+    background: white;
+    border: 1px solid #dbe1ea;
+    color: #475569;
+}
+
+.submit-btn {
+    background: #2563eb;
+    border: none;
+    color: white;
+}
+
+.submit-btn:hover {
+    background: #1d4ed8;
+}
+
+@media (max-width: 768px) {
+    .purchase-summary {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .payment-card-body {
+        padding: 17px;
+    }
+}
+
+@media (max-width: 550px) {
+    .payment-header h2 {
+        font-size: 20px;
+    }
+
+    .payment-header {
+        align-items: stretch;
+    }
+
+    .back-btn {
+        width: 100%;
+    }
+
+    .payment-card-body form {
+        grid-template-columns: 1fr;
+    }
+
+    .payment-card-body form > .form-group {
+        grid-column: 1;
+    }
+
+    .purchase-summary {
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+        padding: 14px;
+    }
+
+    .form-actions {
+        flex-direction: column-reverse;
+        align-items: stretch;
+    }
+
+    .cancel-btn,
+    .submit-btn {
+        width: 100%;
+        box-sizing: border-box;
+    }
+}
+</style>
+{% endblock %}
+
+
+{% block content %}
+
+<div class="payment-header">
+    <div>
+        <h2>Record Supplier Payment</h2>
+        <p>Record a full or partial payment for this purchase.</p>
+    </div>
+
+    <a href="{% url 'purchases:purchase_detail' purchase.pk %}"
+       class="back-btn">
+        ← Back to Purchase
+    </a>
+</div>
+
+
+<div class="payment-card">
+
+    <div class="payment-card-header">
+        <h3>Payment Information</h3>
+    </div>
+
+    <div class="payment-card-body">
+
+        <!-- Purchase Summary -->
+
+        <div class="purchase-summary">
+
+            <div class="summary-item">
+                <label>Invoice Number</label>
+                <strong>{{ purchase.invoice_number }}</strong>
+            </div>
+
+            <div class="summary-item">
+                <label>Supplier</label>
+                <strong>{{ purchase.supplier.supplier_name }}</strong>
+            </div>
+
+            <div class="summary-item">
+                <label>Total Amount</label>
+                <strong>₹{{ purchase.total_amount|floatformat:2 }}</strong>
+            </div>
+
+            <div class="summary-item">
+                <label>Already Paid</label>
+                <strong>₹{{ purchase.paid_amount|floatformat:2 }}</strong>
+            </div>
+
+            <div class="summary-item">
+                <label>Remaining Balance</label>
+                <strong class="remaining-amount">
+                    ₹{{ remaining_balance|floatformat:2 }}
+                </strong>
+            </div>
+
+        </div>
+
+
+        <!-- Payment Form -->
+
+        <form method="POST">
+
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                <div class="error-box">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            <div class="form-group">
+
+                <label for="{{ form.amount.id_for_label }}">
+                    Payment Amount (₹) *
+                </label>
+
+                {{ form.amount }}
+
+                {% for error in form.amount.errors %}
+                    <span class="field-error">{{ error }}</span>
+                {% endfor %}
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="{{ form.payment_method.id_for_label }}">
+                    Payment Method *
+                </label>
+
+                {{ form.payment_method }}
+
+                {% for error in form.payment_method.errors %}
+                    <span class="field-error">{{ error }}</span>
+                {% endfor %}
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="{{ form.transaction_reference.id_for_label }}">
+                    Transaction Reference
+                </label>
+
+                {{ form.transaction_reference }}
+
+                {% for error in form.transaction_reference.errors %}
+                    <span class="field-error">{{ error }}</span>
+                {% endfor %}
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="{{ form.notes.id_for_label }}">
+                    Notes
+                </label>
+
+                {{ form.notes }}
+
+                {% for error in form.notes.errors %}
+                    <span class="field-error">{{ error }}</span>
+                {% endfor %}
+
+            </div>
+
+
+            <div class="form-actions">
+
+                <a href="{% url 'purchases:purchase_detail' purchase.pk %}"
+                   class="cancel-btn">
+                    Cancel
+                </a>
+
+                <button type="submit" class="submit-btn">
+                    Save Payment
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

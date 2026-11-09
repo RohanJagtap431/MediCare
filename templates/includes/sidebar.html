@@ -1,0 +1,155 @@
+
+<aside class="sidebar" id="sidebar">
+
+    <!-- BRAND -->
+    <div class="sidebar-brand">
+        <div class="brand-icon">M</div>
+        <div class="brand-info">
+            <h2>MediCare</h2>
+            <span>Medical Store System</span>
+        </div>
+    </div>
+
+    <!-- SIDEBAR MENU -->
+    <div class="sidebar-menu">
+
+        <!-- MAIN MENU -->
+        <p class="menu-heading">MAIN MENU</p>
+
+        <a href="{% url 'dashboard:dashboard' %}"
+           class="menu-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+            <span class="menu-icon">▦</span>
+            <span>Dashboard</span>
+        </a>
+
+
+        <!-- MEDICINE MANAGEMENT -->
+        <p class="menu-heading">MEDICINE MANAGEMENT</p>
+
+        <a href="{% url 'medicines:category_list' %}"
+        class="menu-link {% if request.resolver_match.app_name == 'medicines' and request.resolver_match.url_name == 'category_list' %}active{% endif %}">
+            <span class="menu-icon">📂</span>
+            <span>Categories</span>
+        </a>
+
+        <a href="{% url 'medicines:manufacturer_list' %}"
+           class="menu-link {% if 'manufacturer' in request.resolver_match.url_name %}active{% endif %}">
+            <span class="menu-icon">🏭</span>
+            <span>Manufacturers</span>
+        </a>
+
+        <a href="{% url 'medicines:medicine_list' %}"
+           class="menu-link {% if 'medicine' in request.resolver_match.url_name %}active{% endif %}">
+            <span class="menu-icon">💊</span>
+            <span>Medicine List</span>
+        </a>
+
+        <a href="{% url 'medicines:batch_list' %}"
+           class="menu-link {% if 'batch' in request.resolver_match.url_name %}active{% endif %}">
+            <span class="menu-icon">📦</span>
+            <span>Medicine Batches</span>
+        </a>
+
+
+        <!-- BUSINESS MANAGEMENT -->
+        <p class="menu-heading">BUSINESS MANAGEMENT</p>
+
+        <a href="{% url 'suppliers:supplier_list' %}"
+           class="menu-link {% if request.resolver_match.app_name == 'suppliers' %}active{% endif %}">
+            <span class="menu-icon">🏭</span>
+            <span>Suppliers</span>
+        </a>
+
+        <a href="{% url 'customers:customer_list' %}"
+           class="menu-link {% if request.resolver_match.app_name == 'customers' %}active{% endif %}">
+            <span class="menu-icon">👥</span>
+            <span>Customers</span>
+        </a>
+
+
+        <!-- TRANSACTIONS -->
+        <p class="menu-heading">TRANSACTIONS</p>
+
+        <a href="{% url 'purchases:purchase_list' %}"
+           class="menu-link {% if request.resolver_match.app_name == 'purchases' %}active{% endif %}">
+            <span class="menu-icon">🛒</span>
+            <span>Purchase Management</span>
+        </a>
+
+        <a href="{% url 'sales:sale_create' %}"
+           class="menu-link {% if request.resolver_match.url_name == 'sale_create' %}active{% endif %}">
+            <span class="menu-icon">🧾</span>
+            <span>Billing</span>
+        </a>
+
+        <a href="{% url 'sales:bill_list' %}"
+           class="menu-link {% if request.resolver_match.url_name == 'bill_list' or request.resolver_match.url_name == 'sale_invoice' %}active{% endif %}">
+            <span class="menu-icon">📋</span>
+            <span>Bill Management</span>
+        </a>
+
+
+        <!-- INVENTORY MANAGEMENT -->
+        <p class="menu-heading">INVENTORY MANAGEMENT</p>
+
+        <a href="{% url 'inventory:stock_list' %}"
+           class="menu-link {% if request.resolver_match.url_name == 'stock_list' %}active{% endif %}">
+            <span class="menu-icon">📦</span>
+            <span>Stock Management</span>
+        </a>
+
+        <a href="{% url 'inventory:expiry_list' %}"
+           class="menu-link {% if request.resolver_match.url_name == 'expiry_list' %}active{% endif %}">
+            <span class="menu-icon">⏳</span>
+            <span>Expiry Management</span>
+        </a>
+
+
+        <!-- OTHER MANAGEMENT -->
+        <p class="menu-heading">OTHER MANAGEMENT</p>
+
+        <a href="{% url 'reports:reports_dashboard' %}"
+           class="menu-link {% if request.resolver_match.app_name == 'reports' %}active{% endif %}">
+            <span class="menu-icon">📊</span>
+            <span>Reports Management</span>
+        </a>
+
+        <!-- EXPENSE MANAGEMENT -->
+        <a href="{% url 'expenses:expense_list' %}"
+           class="menu-link {% if request.resolver_match.app_name == 'expenses' and 'category' not in request.resolver_match.url_name %}active{% endif %}">
+            <span class="menu-icon">💸</span>
+            <span>Expense Management</span>
+        </a>
+
+        <!-- EXPENSE CATEGORIES -->
+        <a href="{% url 'expenses:category_list' %}"
+        class="menu-link {% if request.resolver_match.app_name == 'expenses' and 'category' in request.resolver_match.url_name %}active{% endif %}">
+            <span class="menu-icon">📂</span>
+            <span>Expense Categories</span>
+        </a>
+
+        <!-- ADMIN PANEL -->
+        {% if request.user.is_superuser or request.user.role == "ADMIN" %}
+        <a href="{% url 'admin:index' %}" class="menu-link">
+            <span class="menu-icon">⚙️</span>
+            <span>Admin Panel</span>
+        </a>
+        {% endif %}
+
+    </div>
+
+    <!-- SIDEBAR FOOTER -->
+    <div class="sidebar-footer">
+
+        <form method="POST" action="{% url 'accounts:logout' %}">
+            {% csrf_token %}
+
+            <button type="submit" class="menu-link logout-link">
+                <span class="menu-icon">↪</span>
+                <span>Logout</span>
+            </button>
+        </form>
+
+    </div>
+
+</aside>

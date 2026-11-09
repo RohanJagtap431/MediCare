@@ -1,0 +1,791 @@
+
+{% extends "base.html" %}
+
+{% block title %}Invoice {{ sale.invoice_number }} | MediCare{% endblock %}
+
+{% block extra_css %}
+<style>
+.invoice-wrapper {
+    max-width: 1050px;
+    margin: 20px auto;
+}
+
+.invoice-card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 30px;
+}
+
+.invoice-top {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+    border-bottom: 2px solid #2563eb;
+    padding-bottom: 22px;
+}
+
+.invoice-brand h1 {
+    margin: 0;
+    color: #1d4ed8;
+    font-size: 28px;
+}
+
+.invoice-brand p,
+.invoice-meta p {
+    margin: 6px 0;
+    color: #64748b;
+    font-size: 13px;
+    overflow-wrap: anywhere;
+}
+
+.invoice-meta {
+    text-align: right;
+}
+
+.invoice-meta h2 {
+    margin: 0 0 10px;
+    color: #172033;
+    font-size: 22px;
+}
+
+.invoice-section {
+    margin-top: 25px;
+}
+
+.invoice-section h3 {
+    font-size: 15px;
+    color: #172033;
+    margin-bottom: 12px;
+}
+
+.invoice-info {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.invoice-info p {
+    margin: 6px 0;
+    color: #475569;
+    font-size: 13px;
+    overflow-wrap: anywhere;
+}
+
+.invoice-table-wrap {
+    overflow-x: auto;
+}
+
+.invoice-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 650px;
+}
+
+.invoice-table th,
+.invoice-table td {
+    padding: 12px;
+    border-bottom: 1px solid #e5e7eb;
+    text-align: left;
+    font-size: 13px;
+    vertical-align: top;
+}
+
+.invoice-table th {
+    background: #f1f5f9;
+    color: #475569;
+    font-weight: 600;
+}
+
+.invoice-table td {
+    color: #334155;
+}
+
+.invoice-table td.number,
+.invoice-table th.number {
+    text-align: right;
+    white-space: nowrap;
+}
+
+.invoice-summary {
+    width: 100%;
+    max-width: 370px;
+    margin: 25px 0 0 auto;
+}
+
+.invoice-summary div {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    padding: 8px 0;
+    color: #475569;
+    font-size: 14px;
+}
+
+.invoice-summary strong {
+    color: #334155;
+    text-align: right;
+}
+
+.invoice-summary .grand-total {
+    border-top: 2px solid #1e293b;
+    margin-top: 8px;
+    padding-top: 14px;
+    font-size: 19px;
+    font-weight: 700;
+    color: #1d4ed8;
+}
+
+.invoice-summary .grand-total strong {
+    color: #1d4ed8;
+}
+
+.invoice-status {
+    display: inline-block;
+    padding: 5px 12px;
+    border-radius: 20px;
+    background: #eff6ff;
+    color: #1d4ed8;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.status-paid {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.status-partial {
+    background: #fef3c7;
+    color: #b45309;
+}
+
+.status-unpaid {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.status-cancelled {
+    background: #e2e8f0;
+    color: #475569;
+}
+
+.cancelled-notice {
+    margin-top: 20px;
+    padding: 14px 16px;
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+    background: #fef2f2;
+    color: #991b1b;
+    font-size: 13px;
+}
+
+.cancelled-notice strong {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.invoice-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 15px;
+}
+
+.invoice-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 18px;
+    border: 0;
+    border-radius: 7px;
+    background: #2563eb;
+    color: #fff;
+    text-decoration: none;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.invoice-btn:hover {
+    background: #1d4ed8;
+    color: #fff;
+}
+
+.invoice-btn.secondary {
+    background: #64748b;
+}
+
+.invoice-btn.secondary:hover {
+    background: #475569;
+}
+
+.invoice-footer {
+    border-top: 1px solid #e5e7eb;
+    margin-top: 35px;
+    padding-top: 18px;
+    text-align: center;
+    color: #64748b;
+    font-size: 13px;
+}
+
+.invoice-footer p {
+    margin: 6px 0;
+}
+
+@media(max-width: 600px) {
+    .invoice-card {
+        padding: 16px;
+    }
+
+    .invoice-info {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .invoice-meta {
+        text-align: left;
+    }
+
+    .invoice-brand h1 {
+        font-size: 23px;
+    }
+
+    .invoice-actions {
+        flex-direction: column;
+    }
+
+    .invoice-btn {
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .invoice-summary {
+        max-width: none;
+    }
+}
+
+@media print {
+    @page {
+        size: A4;
+        margin: 12mm;
+    }
+
+    html,
+    body {
+        background: #fff !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    .sidebar,
+    .topbar,
+    .sidebar-overlay,
+    .invoice-actions {
+        display: none !important;
+    }
+
+    .main-wrapper {
+        margin: 0 !important;
+        width: 100% !important;
+    }
+
+    .page-content {
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    .invoice-wrapper {
+        max-width: 100%;
+        margin: 0;
+    }
+
+    .invoice-card {
+        border: none;
+        border-radius: 0;
+        padding: 0;
+    }
+
+    .invoice-table {
+        min-width: 0;
+    }
+
+    .invoice-table th {
+        background: #f1f5f9 !important;
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+    }
+
+    .invoice-status,
+    .cancelled-notice {
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+    }
+
+    .invoice-section,
+    .invoice-summary,
+    .invoice-top {
+        break-inside: avoid;
+    }
+}
+</style>
+{% endblock %}
+
+
+{% block content %}
+
+<div class="invoice-wrapper">
+
+    <!-- Invoice Actions -->
+
+    
+    <div class="invoice-actions">
+
+        <a href="{% url 'sales:sale_create' %}"
+        class="invoice-btn secondary">
+            + New Bill
+        </a>
+
+        {% if not sale.is_cancelled and remaining_balance > 0 %}
+            <a href="{% url 'sales:sale_add_payment' sale.id %}"
+            class="invoice-btn">
+                + Receive Payment
+            </a>
+        {% endif %}
+
+        <button type="button"
+                onclick="window.print()"
+                class="invoice-btn">
+            Print Invoice
+        </button>
+
+    </div>
+
+
+
+    <!-- Invoice Card -->
+
+    <div class="invoice-card">
+
+        <!-- Shop and Invoice Header -->
+
+        <div class="invoice-top">
+
+            <div class="invoice-brand">
+
+                <h1>
+                    {% if shop %}
+                        {{ shop.shop_name }}
+                    {% else %}
+                        MediCare
+                    {% endif %}
+                </h1>
+
+                {% if shop %}
+
+                    {% if shop.owner_name %}
+                        <p>Owner: {{ shop.owner_name }}</p>
+                    {% endif %}
+
+                    {% if shop.address %}
+                        <p>{{ shop.address }}</p>
+                    {% endif %}
+
+                    <p>
+                        {{ shop.city }}
+                        {% if shop.state %}, {{ shop.state }}{% endif %}
+                        {% if shop.pincode %} - {{ shop.pincode }}{% endif %}
+                    </p>
+
+                    {% if shop.phone %}
+                        <p>Phone: {{ shop.phone }}</p>
+                    {% endif %}
+
+                    {% if shop.email %}
+                        <p>Email: {{ shop.email }}</p>
+                    {% endif %}
+
+                    {% if shop.gstin %}
+                        <p>GSTIN: {{ shop.gstin }}</p>
+                    {% endif %}
+
+                    {% if shop.drug_license_number %}
+                        <p>Drug License: {{ shop.drug_license_number }}</p>
+                    {% endif %}
+
+                {% endif %}
+
+            </div>
+
+
+            <div class="invoice-meta">
+
+                <h2>
+                    {% if sale.is_cancelled %}
+                        CANCELLED INVOICE
+                    {% else %}
+                        TAX INVOICE
+                    {% endif %}
+                </h2>
+
+                <p>
+                    <strong>Invoice:</strong>
+                    {{ sale.invoice_number }}
+                </p>
+
+                <p>
+                    <strong>Date:</strong>
+                    {{ sale.sale_date|date:"d M Y, h:i A" }}
+                </p>
+
+                <p>
+                    <strong>Status:</strong>
+
+                    {% if sale.is_cancelled %}
+
+                        <span class="invoice-status status-cancelled">
+                            Cancelled
+                        </span>
+
+                    {% elif sale.payment_status == "PAID" %}
+
+                        <span class="invoice-status status-paid">
+                            Paid
+                        </span>
+
+                    {% elif sale.payment_status == "PARTIAL" %}
+
+                        <span class="invoice-status status-partial">
+                            Partial
+                        </span>
+
+                    {% else %}
+
+                        <span class="invoice-status status-unpaid">
+                            Unpaid
+                        </span>
+
+                    {% endif %}
+
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- Cancellation Information -->
+
+        {% if sale.is_cancelled %}
+
+            <div class="cancelled-notice">
+
+                <strong>This bill has been cancelled.</strong>
+
+                {% if sale.cancelled_at %}
+                    <p>
+                        Cancelled At:
+                        {{ sale.cancelled_at|date:"d M Y, h:i A" }}
+                    </p>
+                {% endif %}
+
+                {% if sale.cancellation_reason %}
+                    <p>
+                        Reason: {{ sale.cancellation_reason }}
+                    </p>
+                {% endif %}
+
+            </div>
+
+        {% endif %}
+
+
+        <!-- Customer and Bill Information -->
+
+        <div class="invoice-section invoice-info">
+
+            <div>
+
+                <h3>Bill To</h3>
+
+                {% if sale.customer %}
+
+                    <p>
+                        <strong>{{ sale.customer.customer_name }}</strong>
+                    </p>
+
+                    {% if sale.customer.phone %}
+                        <p>Phone: {{ sale.customer.phone }}</p>
+                    {% endif %}
+
+                    {% if sale.customer.address %}
+                        <p>{{ sale.customer.address }}</p>
+                    {% endif %}
+
+                    {% if sale.customer.city or sale.customer.state %}
+                        <p>
+                            {{ sale.customer.city }}
+                            {% if sale.customer.state %}, {{ sale.customer.state }}{% endif %}
+                        </p>
+                    {% endif %}
+
+                {% else %}
+
+                    <p><strong>Walk-in Customer</strong></p>
+
+                {% endif %}
+
+            </div>
+
+
+            <div>
+
+                <h3>Bill Information</h3>
+
+                <p>
+                    Created By:
+                    {{ sale.created_by.username|default:"—" }}
+                </p>
+
+                <p>
+                    Payment Status:
+                    {{ sale.get_payment_status_display }}
+                </p>
+
+                {% if sale.payment_method %}
+                    <p>
+                        Payment Method:
+                        {{ sale.get_payment_method_display }}
+                    </p>
+                {% endif %}
+
+            </div>
+
+        </div>
+
+
+        <!-- Medicine Details -->
+
+        <div class="invoice-section">
+
+            <h3>Medicine Details</h3>
+
+            <div class="invoice-table-wrap">
+
+                <table class="invoice-table">
+
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Medicine</th>
+                            <th>Batch</th>
+                            <th class="number">Qty</th>
+                            <th class="number">Price</th>
+                            <th class="number">Discount</th>
+                            <th class="number">GST</th>
+                            <th class="number">Total</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        {% for item in items %}
+
+                        <tr>
+
+                            <td>{{ forloop.counter }}</td>
+
+                            <td>
+                                {{ item.batch.medicine.name }}
+                            </td>
+
+                            <td>
+                                {{ item.batch.batch_number }}
+                            </td>
+
+                            <td class="number">
+                                {{ item.quantity }}
+                            </td>
+
+                            <td class="number">
+                                ₹{{ item.selling_price|floatformat:2 }}
+                            </td>
+
+                            <td class="number">
+                                ₹{{ item.discount_amount|floatformat:2 }}
+                            </td>
+
+                            <td class="number">
+                                {{ item.gst_percentage }}%
+                                <br>
+                                ₹{{ item.gst_amount|floatformat:2 }}
+                            </td>
+
+                            <td class="number">
+                                <strong>
+                                    ₹{{ item.total_amount|floatformat:2 }}
+                                </strong>
+                            </td>
+
+                        </tr>
+
+                        {% empty %}
+
+                        <tr>
+                            <td colspan="8">
+                                No medicine items found.
+                            </td>
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+
+        <!-- Amount Summary -->
+
+        <div class="invoice-summary">
+
+            <div>
+                <span>Subtotal</span>
+                <strong>
+                    ₹{{ sale.subtotal|floatformat:2 }}
+                </strong>
+            </div>
+
+            <div>
+                <span>Discount</span>
+                <strong>
+                    ₹{{ sale.discount_amount|floatformat:2 }}
+                </strong>
+            </div>
+
+            <div>
+                <span>GST</span>
+                <strong>
+                    ₹{{ sale.gst_amount|floatformat:2 }}
+                </strong>
+            </div>
+
+            <div class="grand-total">
+                <span>Grand Total</span>
+                <strong>
+                    ₹{{ sale.total_amount|floatformat:2 }}
+                </strong>
+            </div>
+
+            <div>
+                <span>Paid Amount</span>
+                <strong>
+                    ₹{{ sale.paid_amount|floatformat:2 }}
+                </strong>
+            </div>
+
+            <div>
+                <span>Remaining Balance</span>
+                <strong>
+                    ₹{{ remaining_balance|floatformat:2 }}
+                </strong>
+            </div>
+
+        </div>
+
+
+        <!-- Payment History -->
+
+        {% if payments %}
+
+        <div class="invoice-section">
+
+            <h3>Payment History</h3>
+
+            <div class="invoice-table-wrap">
+
+                <table class="invoice-table">
+
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Payment Method</th>
+                            <th>Reference</th>
+                            <th class="number">Amount</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        {% for payment in payments %}
+
+                        <tr>
+
+                            <td>
+                                {{ payment.payment_date|date:"d M Y, h:i A" }}
+                            </td>
+
+                            <td>
+                                {{ payment.get_payment_method_display }}
+                            </td>
+
+                            <td>
+                                {{ payment.transaction_reference|default:"—" }}
+                            </td>
+
+                            <td class="number">
+                                ₹{{ payment.amount|floatformat:2 }}
+                            </td>
+
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+        {% endif %}
+
+
+        <!-- Notes -->
+
+        {% if sale.notes %}
+
+        <div class="invoice-section">
+
+            <h3>Notes</h3>
+
+            <p>{{ sale.notes }}</p>
+
+        </div>
+
+        {% endif %}
+
+
+        <!-- Footer -->
+
+        <div class="invoice-footer">
+
+            <strong>Thank you for your purchase!</strong>
+
+            <p>Computer-generated invoice by MediCare.</p>
+
+            <p>For any queries, please contact the medical store.</p>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

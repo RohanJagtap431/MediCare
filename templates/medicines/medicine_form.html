@@ -1,0 +1,237 @@
+
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ page_title }} | MediCare{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/medicines.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<!-- PAGE HEADER -->
+<div class="page-header">
+    <div>
+        <h1>{{ page_title }}</h1>
+        <p>Add or update medicine information.</p>
+    </div>
+
+    <a href="{% url 'medicines:medicine_list' %}" class="btn btn-secondary">
+        ← Back to Medicine List
+    </a>
+</div>
+
+
+<!-- MESSAGES -->
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            {{ message }}
+        </div>
+    {% endfor %}
+{% endif %}
+
+
+<!-- FORM CONTAINER -->
+<div class="medicine-form-container">
+
+    <form method="POST" class="medicine-form" novalidate>
+
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+            <div class="alert alert-error">
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+
+        <!-- BASIC INFORMATION -->
+        <div class="form-section">
+
+            <div class="form-section-heading">
+                <h3>Basic Information</h3>
+                <p>Enter medicine identification details.</p>
+            </div>
+
+            <div class="medicine-form-grid">
+
+                <div class="form-group">
+                    <label for="{{ form.name.id_for_label }}">
+                        Medicine Name <span class="required">*</span>
+                    </label>
+
+                    {{ form.name }}
+
+                    {% for error in form.name.errors %}
+                        <small class="field-error">{{ error }}</small>
+                    {% endfor %}
+                </div>
+
+
+                <div class="form-group">
+                    <label for="{{ form.generic_name.id_for_label }}">
+                        Generic Name
+                    </label>
+
+                    {{ form.generic_name }}
+
+                    {% for error in form.generic_name.errors %}
+                        <small class="field-error">{{ error }}</small>
+                    {% endfor %}
+                </div>
+
+
+                <div class="form-group">
+                    <label for="{{ form.category.id_for_label }}">
+                        Category <span class="required">*</span>
+                    </label>
+
+                    {{ form.category }}
+
+                    {% for error in form.category.errors %}
+                        <small class="field-error">{{ error }}</small>
+                    {% endfor %}
+                </div>
+
+
+                <div class="form-group">
+                    <label for="{{ form.manufacturer.id_for_label }}">
+                        Manufacturer
+                    </label>
+
+                    {{ form.manufacturer }}
+
+                    {% for error in form.manufacturer.errors %}
+                        <small class="field-error">{{ error }}</small>
+                    {% endfor %}
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- MEDICINE DETAILS -->
+        <div class="form-section">
+
+            <div class="form-section-heading">
+                <h3>Medicine Details</h3>
+                <p>Enter dosage, strength and packaging information.</p>
+            </div>
+
+            <div class="medicine-form-grid">
+
+                <div class="form-group">
+                    <label for="{{ form.strength.id_for_label }}">
+                        Strength
+                    </label>
+
+                    {{ form.strength }}
+
+                    {% for error in form.strength.errors %}
+                        <small class="field-error">{{ error }}</small>
+                    {% endfor %}
+                </div>
+
+
+                <div class="form-group">
+                    <label for="{{ form.dosage_form.id_for_label }}">
+                        Dosage Form <span class="required">*</span>
+                    </label>
+
+                    {{ form.dosage_form }}
+
+                    {% for error in form.dosage_form.errors %}
+                        <small class="field-error">{{ error }}</small>
+                    {% endfor %}
+                </div>
+
+
+                <div class="form-group">
+                    <label for="{{ form.pack_size.id_for_label }}">
+                        Pack Size
+                    </label>
+
+                    {{ form.pack_size }}
+
+                    {% for error in form.pack_size.errors %}
+                        <small class="field-error">{{ error }}</small>
+                    {% endfor %}
+                </div>
+
+
+                <div class="form-group">
+                    <label for="{{ form.barcode.id_for_label }}">
+                        Barcode
+                    </label>
+
+                    {{ form.barcode }}
+
+                    {% for error in form.barcode.errors %}
+                        <small class="field-error">{{ error }}</small>
+                    {% endfor %}
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ADDITIONAL INFORMATION -->
+        <div class="form-section">
+
+            <div class="form-section-heading">
+                <h3>Additional Information</h3>
+                <p>Configure prescription and medicine status.</p>
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.description.id_for_label }}">
+                    Description
+                </label>
+
+                {{ form.description }}
+
+                {% for error in form.description.errors %}
+                    <small class="field-error">{{ error }}</small>
+                {% endfor %}
+            </div>
+
+
+            <div class="medicine-checkbox-group">
+
+                <label class="checkbox-item">
+                    {{ form.requires_prescription }}
+                    <span>Prescription Required</span>
+                </label>
+
+                <label class="checkbox-item">
+                    {{ form.is_active }}
+                    <span>Medicine Active</span>
+                </label>
+
+            </div>
+
+        </div>
+
+
+        <!-- FORM ACTIONS -->
+        <div class="medicine-form-actions">
+
+            <a href="{% url 'medicines:medicine_list' %}"
+               class="cancel-btn">
+                Cancel
+            </a>
+
+            <button type="submit" class="btn">
+                {{ button_text }}
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+{% endblock %}

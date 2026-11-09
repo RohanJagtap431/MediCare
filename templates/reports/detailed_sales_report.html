@@ -1,0 +1,612 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+
+.sales-report-page {
+    width: 100%;
+    padding: 26px;
+    color: #1e293b;
+}
+
+/* Header */
+.sales-report-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 18px;
+    margin-bottom: 26px;
+}
+
+.sales-report-header h2 {
+    margin: 0;
+    font-size: 27px;
+    font-weight: 750;
+    letter-spacing: -0.5px;
+    color: #172554;
+}
+
+.sales-report-header p {
+    margin: 7px 0 0;
+    color: #64748b;
+    font-size: 14px;
+}
+
+.report-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.report-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 12px 19px;
+    border-radius: 9px;
+    font-size: 13px;
+    font-weight: 650;
+    text-decoration: none;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.back-btn {
+    background: #ffffff;
+    color: #334155;
+    border-color: #e2e8f0;
+}
+
+.back-btn:hover {
+    background: #f1f5f9;
+    color: #1e293b;
+}
+
+.export-btn {
+    background: #15803d;
+    color: #ffffff;
+    box-shadow: 0 3px 8px rgba(21, 128, 61, 0.15);
+}
+
+.export-btn:hover {
+    background: #166534;
+    color: #ffffff;
+    transform: translateY(-2px);
+}
+
+/* Summary Cards */
+.report-summary {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 17px;
+    margin-bottom: 25px;
+}
+
+.summary-card {
+    position: relative;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 13px;
+    padding: 23px;
+    min-width: 0;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.025);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.summary-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+}
+
+.summary-card p {
+    margin: 0 0 14px;
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.summary-card h3 {
+    margin: 0;
+    font-size: 27px;
+    font-weight: 750;
+    letter-spacing: -0.5px;
+    overflow-wrap: anywhere;
+}
+
+.summary-card.blue h3 { color: #2563eb; }
+.summary-card.green h3 { color: #15803d; }
+.summary-card.orange h3 { color: #ea580c; }
+.summary-card.purple h3 { color: #7c3aed; }
+
+/* Filter Panel */
+.report-filter-panel {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 13px;
+    padding: 22px;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.025);
+}
+
+.report-filter-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1.2fr auto;
+    gap: 15px;
+    align-items: end;
+}
+
+.report-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+}
+
+.report-field label {
+    color: #475569;
+    font-size: 13px;
+    font-weight: 650;
+}
+
+.report-field input {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    padding: 12px 13px;
+    border: 1px solid #cbd5e1;
+    border-radius: 9px;
+    background: #ffffff;
+    color: #1e293b;
+    font-size: 13px;
+    transition: border 0.2s, box-shadow 0.2s;
+}
+
+.report-field input:focus,
+.report-search:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.10);
+}
+
+.report-filter-form button {
+    padding: 13px 22px;
+    border: none;
+    border-radius: 9px;
+    background: #2563eb;
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 650;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.report-filter-form button:hover {
+    background: #1d4ed8;
+}
+
+/* Table Panel */
+.report-table-panel {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 13px;
+    padding: 22px;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.025);
+}
+
+.report-table-heading {
+    margin-bottom: 19px;
+}
+
+.report-table-heading h3 {
+    margin: 0;
+    color: #1e293b;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.report-table-heading p {
+    margin: 6px 0 0;
+    color: #64748b;
+    font-size: 13px;
+}
+
+.report-search {
+    width: 100%;
+    max-width: 350px;
+    box-sizing: border-box;
+    padding: 12px 14px;
+    margin-bottom: 17px;
+    border: 1px solid #cbd5e1;
+    border-radius: 9px;
+    font-size: 13px;
+}
+
+.report-table-wrap {
+    width: 100%;
+    overflow-x: auto;
+    border-radius: 9px;
+}
+
+.report-table {
+    width: 100%;
+    min-width: 1050px;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.report-table th {
+    padding: 15px 14px;
+    background: #f8fafc;
+    color: #64748b;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.35px;
+    text-transform: uppercase;
+    white-space: nowrap;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.report-table td {
+    padding: 17px 14px;
+    font-size: 13px;
+    color: #334155;
+    border-bottom: 1px solid #f1f5f9;
+    white-space: nowrap;
+}
+
+.report-table tbody tr {
+    transition: background 0.15s ease;
+}
+
+.report-table tbody tr:hover {
+    background: #f8fafc;
+}
+
+.report-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.invoice-number {
+    color: #2563eb !important;
+    font-weight: 700;
+}
+
+.payment-badge {
+    display: inline-block;
+    padding: 6px 11px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.paid-badge {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.partial-badge {
+    background: #fef3c7;
+    color: #b45309;
+}
+
+.unpaid-badge {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.view-invoice {
+    color: #2563eb;
+    font-weight: 650;
+    text-decoration: none;
+}
+
+.view-invoice:hover {
+    color: #1d4ed8;
+    text-decoration: underline;
+}
+
+.report-empty {
+    padding: 40px !important;
+    text-align: center;
+    color: #64748b !important;
+}
+
+/* Tablet */
+@media (max-width: 1100px) {
+    .report-summary {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .report-filter-form {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+    .sales-report-page {
+        padding: 15px;
+    }
+
+    .sales-report-header {
+        align-items: stretch;
+    }
+
+    .sales-report-header h2 {
+        font-size: 22px;
+    }
+
+    .report-actions {
+        width: 100%;
+    }
+
+    .report-btn {
+        flex: 1;
+        text-align: center;
+    }
+
+    .report-summary {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 11px;
+    }
+
+    .summary-card {
+        padding: 15px;
+    }
+
+    .summary-card h3 {
+        font-size: 20px;
+    }
+
+    .report-filter-panel,
+    .report-table-panel {
+        padding: 15px;
+    }
+
+    .report-filter-form {
+        grid-template-columns: 1fr;
+    }
+
+    .report-filter-form button {
+        width: 100%;
+    }
+
+    .report-table-heading h3 {
+        font-size: 16px;
+    }
+}
+
+@media print {
+    .report-actions,
+    .report-filter-panel,
+    .report-summary {
+        display: none !important;
+    }
+
+    .sales-report-page {
+        padding: 0;
+    }
+
+    .report-table-panel {
+        border: none;
+        box-shadow: none;
+    }
+
+    .report-table-wrap {
+        overflow: visible;
+    }
+
+    .report-table {
+        min-width: 0;
+    }
+
+    .report-table th,
+    .report-table td {
+        font-size: 9px;
+        padding: 8px;
+    }
+}
+
+</style>
+
+<div class="sales-report-page">
+
+    <!-- Header -->
+    <div class="sales-report-header">
+
+        <div>
+            <h2>Detailed Sales Report</h2>
+            <p>View and analyze your sales transactions.</p>
+        </div>
+
+        <div class="report-actions">
+
+            <a href="{% url 'reports:reports_dashboard' %}"
+               class="report-btn back-btn">
+                ← Back
+            </a>
+
+            <a href="?start_date={{ start_date|date:'Y-m-d' }}&end_date={{ end_date|date:'Y-m-d' }}&q={{ search_query|urlencode }}&export=csv"
+               class="report-btn export-btn">
+                ↓ Export CSV
+            </a>
+
+        </div>
+
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="report-summary">
+
+        <div class="summary-card blue">
+            <p>Total Bills</p>
+            <h3>{{ total_bills }}</h3>
+        </div>
+
+        <div class="summary-card green">
+            <p>Total Sales</p>
+            <h3>₹{{ total_amount|floatformat:2 }}</h3>
+        </div>
+
+        <div class="summary-card purple">
+            <p>Total Paid</p>
+            <h3>₹{{ total_paid|floatformat:2 }}</h3>
+        </div>
+
+        <div class="summary-card orange">
+            <p>Remaining Balance</p>
+            <h3>₹{{ total_balance|floatformat:2 }}</h3>
+        </div>
+
+    </div>
+
+    <!-- Filters -->
+    <div class="report-filter-panel">
+
+        <form method="GET" class="report-filter-form">
+
+            <div class="report-field">
+                <label>Start Date</label>
+                <input
+                    type="date"
+                    name="start_date"
+                    value="{{ start_date|date:'Y-m-d' }}"
+                    required
+                >
+            </div>
+
+            <div class="report-field">
+                <label>End Date</label>
+                <input
+                    type="date"
+                    name="end_date"
+                    value="{{ end_date|date:'Y-m-d' }}"
+                    required
+                >
+            </div>
+
+            <div class="report-field">
+                <label>Search</label>
+                <input
+                    type="text"
+                    name="q"
+                    placeholder="Invoice / Customer / Phone"
+                    value="{{ search_query }}"
+                >
+            </div>
+
+            <button type="submit">Apply Filter</button>
+
+        </form>
+
+    </div>
+
+    <!-- Sales Table -->
+    <div class="report-table-panel">
+
+        <div class="report-table-heading">
+            <h3>Sales Transactions</h3>
+            <p>Detailed invoice-wise sales records.</p>
+        </div>
+
+        <div class="report-table-wrap">
+
+            <table class="report-table">
+
+                <thead>
+                    <tr>
+                        <th>Invoice Number</th>
+                        <th>Sale Date</th>
+                        <th>Customer</th>
+                        <th>Total Amount</th>
+                        <th>Paid Amount</th>
+                        <th>Balance</th>
+                        <th>Payment Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for sale in sales %}
+
+                    <tr>
+
+                        <td class="invoice-number">
+                            {{ sale.invoice_number }}
+                        </td>
+
+                        <td>
+                            {{ sale.sale_date|date:"d M Y, h:i A" }}
+                        </td>
+
+                        <td>
+                            {% if sale.customer %}
+                                {{ sale.customer.customer_name }}
+                            {% else %}
+                                Walk-in Customer
+                            {% endif %}
+                        </td>
+
+                        <td>₹{{ sale.total_amount|floatformat:2 }}</td>
+
+                        <td>₹{{ sale.paid_amount|floatformat:2 }}</td>
+
+                        <td>
+                            ₹{{ sale.remaining_balance|floatformat:2 }}
+                        </td>
+
+                        <td>
+
+                            {% if sale.payment_status == "PAID" %}
+                                <span class="payment-badge paid-badge">
+                                    Paid
+                                </span>
+
+                            {% elif sale.payment_status == "PARTIAL" %}
+                                <span class="payment-badge partial-badge">
+                                    Partial
+                                </span>
+
+                            {% else %}
+                                <span class="payment-badge unpaid-badge">
+                                    Unpaid
+                                </span>
+                            {% endif %}
+
+                        </td>
+
+                        <td>
+                            <a href="{% url 'sales:sale_invoice' sale.id %}"
+                               class="view-invoice">
+                                View Invoice
+                            </a>
+                        </td>
+
+                    </tr>
+
+                    {% empty %}
+
+                    <tr>
+                        <td colspan="8" class="report-empty">
+                            No sales records found for the selected filters.
+                        </td>
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

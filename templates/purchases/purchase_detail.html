@@ -1,0 +1,733 @@
+
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Purchase Details | MediCare{% endblock %}
+
+{% block extra_css %}
+<style>
+.purchase-detail-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin-bottom: 22px;
+}
+
+.purchase-detail-header h2 {
+    margin: 0;
+    color: #172033;
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.purchase-detail-header p {
+    margin: 6px 0 0;
+    color: #718096;
+    font-size: 14px;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.back-btn,
+.receive-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 11px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.back-btn {
+    border: 1px solid #dbe1ea;
+    background: white;
+    color: #334155;
+}
+
+.back-btn:hover {
+    background: #f8fafc;
+}
+
+.receive-btn {
+    border: none;
+    background: #16a34a;
+    color: white;
+}
+
+.receive-btn:hover {
+    background: #15803d;
+}
+
+.received-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 11px 16px;
+    border-radius: 8px;
+    background: #dcfce7;
+    color: #166534;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.detail-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    overflow: hidden;
+}
+
+.detail-card-header {
+    padding: 18px 20px;
+    border-bottom: 1px solid #edf0f4;
+}
+
+.detail-card-header h3 {
+    margin: 0;
+    color: #172033;
+    font-size: 16px;
+}
+
+.detail-card-body {
+    padding: 22px;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 22px;
+}
+
+.info-item label {
+    display: block;
+    color: #94a3b8;
+    font-size: 12px;
+    margin-bottom: 7px;
+}
+
+.info-item p {
+    margin: 0;
+    color: #334155;
+    font-size: 14px;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 5px 11px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.status-draft,
+.payment-unpaid {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.status-received,
+.payment-paid {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.payment-partial {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+/* Items Table */
+
+.items-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.items-table {
+    width: 100%;
+    min-width: 850px;
+    border-collapse: collapse;
+}
+
+.items-table th,
+.items-table td {
+    padding: 14px 16px;
+    text-align: left;
+    border-bottom: 1px solid #edf0f4;
+    font-size: 13px;
+}
+
+.items-table th {
+    background: #f8fafc;
+    color: #64748b;
+    font-weight: 600;
+}
+
+.items-table td {
+    color: #334155;
+}
+
+.items-table tr:last-child td {
+    border-bottom: none;
+}
+
+/* Summary */
+
+.summary-wrapper {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.summary-box {
+    width: 100%;
+    max-width: 380px;
+    padding: 20px;
+    background: #f8fafc;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    padding: 9px 0;
+    color: #64748b;
+    font-size: 13px;
+}
+
+.summary-row strong {
+    color: #334155;
+}
+
+.summary-total {
+    margin-top: 8px;
+    padding-top: 15px;
+    border-top: 1px solid #dbe1ea;
+    color: #172033;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.summary-total strong {
+    color: #2563eb;
+    font-size: 18px;
+}
+
+.notes-text {
+    color: #475569;
+    font-size: 13px;
+    line-height: 1.7;
+    white-space: pre-wrap;
+}
+
+.payment-action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 11px 16px;
+    border-radius: 8px;
+    background: #2563eb;
+    color: white;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.payment-action-btn:hover {
+    background: #1d4ed8;
+    color: white;
+}
+
+@media (max-width: 600px) {
+    .purchase-detail-header h2 {
+        font-size: 20px;
+    }
+
+    .header-actions {
+        width: 100%;
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .back-btn,
+    .receive-btn,
+    .received-label,
+    .payment-action-btn {
+        width: 100%;
+        text-align: center;
+    }
+
+    .info-grid {
+        grid-template-columns: 1fr;
+        gap: 18px;
+    }
+
+    .detail-card-body {
+        padding: 16px;
+    }
+
+    .summary-wrapper {
+        justify-content: stretch;
+    }
+
+    .summary-box {
+        max-width: none;
+    }
+}
+</style>
+{% endblock %}
+
+
+{% block content %}
+
+<!-- Header -->
+
+<div class="purchase-detail-header">
+
+    <div>
+        <h2>Purchase Details</h2>
+        <p>Complete purchase invoice and medicine information.</p>
+    </div>
+
+    <div class="header-actions">
+
+        <!-- ADMIN ONLY: RECEIVE PURCHASE -->
+
+        {% if request.user.is_superuser or request.user.role == "ADMIN" %}
+
+            {% if purchase.purchase_status == "DRAFT" %}
+
+                <form method="POST"
+                    action="{% url 'purchases:purchase_receive' purchase.pk %}"
+                    onsubmit="return confirm('Are you sure you want to receive this purchase? Stock will be updated.');">
+
+                    {% csrf_token %}
+
+                    <button type="submit" class="receive-btn">
+                        ✓ Receive Purchase
+                    </button>
+
+                </form>
+
+            {% endif %}
+
+        {% endif %}
+
+
+        <!-- RECEIVED STATUS: BOTH ROLES -->
+
+        {% if purchase.purchase_status == "RECEIVED" %}
+
+            <span class="received-label">
+                ✓ Purchase Received
+            </span>
+
+        {% endif %}
+
+
+        <!-- ADMIN ONLY: RECORD PAYMENT -->
+
+        {% if request.user.is_superuser or request.user.role == "ADMIN" %}
+
+            {% if purchase.purchase_status == "RECEIVED" and remaining_balance > 0 %}
+
+                <a href="{% url 'purchases:purchase_add_payment' purchase.pk %}"
+                   class="payment-action-btn">
+                    + Record Payment
+                </a>
+
+            {% endif %}
+
+        {% endif %}
+
+
+        <!-- FULLY PAID STATUS: BOTH ROLES -->
+
+        {% if purchase.payment_status == "PAID" %}
+
+            <span class="received-label">
+                ✓ Fully Paid
+            </span>
+
+        {% endif %}
+
+
+        <!-- BACK BUTTON: BOTH ROLES -->
+
+        <a href="{% url 'purchases:purchase_list' %}"
+           class="back-btn">
+            ← Back to Purchases
+        </a>
+
+    </div>
+
+</div>
+
+
+<!-- Purchase Information -->
+
+<div class="detail-card">
+
+    <div class="detail-card-header">
+        <h3>Purchase Information</h3>
+    </div>
+
+    <div class="detail-card-body">
+
+        <div class="info-grid">
+
+            <div class="info-item">
+                <label>Invoice Number</label>
+                <p>{{ purchase.invoice_number }}</p>
+            </div>
+
+            <div class="info-item">
+                <label>Purchase Date</label>
+                <p>{{ purchase.purchase_date|date:"d M Y" }}</p>
+            </div>
+
+            <div class="info-item">
+                <label>Purchase Status</label>
+                <p>
+                    <span class="status-badge
+                        {% if purchase.purchase_status == 'RECEIVED' %}
+                            status-received
+                        {% else %}
+                            status-draft
+                        {% endif %}">
+                        {{ purchase.get_purchase_status_display }}
+                    </span>
+                </p>
+            </div>
+
+            <div class="info-item">
+                <label>Payment Status</label>
+                <p>
+                    <span class="status-badge
+                        {% if purchase.payment_status == 'PAID' %}
+                            payment-paid
+                        {% elif purchase.payment_status == 'PARTIAL' %}
+                            payment-partial
+                        {% else %}
+                            payment-unpaid
+                        {% endif %}">
+                        {{ purchase.get_payment_status_display }}
+                    </span>
+                </p>
+            </div>
+
+            <div class="info-item">
+                <label>Created By</label>
+                <p>{{ purchase.created_by|default:"—" }}</p>
+            </div>
+
+            <div class="info-item">
+                <label>Received At</label>
+                <p>
+                    {% if purchase.received_at %}
+                        {{ purchase.received_at|date:"d M Y, h:i A" }}
+                    {% else %}
+                        Not Received
+                    {% endif %}
+                </p>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+
+<!-- Supplier Information -->
+
+<div class="detail-card">
+
+    <div class="detail-card-header">
+        <h3>Supplier Information</h3>
+    </div>
+
+    <div class="detail-card-body">
+
+        <div class="info-grid">
+
+            <div class="info-item">
+                <label>Supplier Name</label>
+                <p>{{ purchase.supplier.supplier_name }}</p>
+            </div>
+
+            <div class="info-item">
+                <label>Contact Person</label>
+                <p>{{ purchase.supplier.contact_person|default:"—" }}</p>
+            </div>
+
+            <div class="info-item">
+                <label>Phone Number</label>
+                <p>{{ purchase.supplier.phone|default:"—" }}</p>
+            </div>
+
+            <div class="info-item">
+                <label>Email</label>
+                <p>{{ purchase.supplier.email|default:"—" }}</p>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+
+<!-- Purchased Medicines -->
+
+<div class="detail-card">
+
+    <div class="detail-card-header">
+        <h3>Purchased Medicines</h3>
+    </div>
+
+    <div class="items-table-wrapper">
+
+        <table class="items-table">
+
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Medicine</th>
+                    <th>Batch Number</th>
+                    <th>Quantity</th>
+                    <th>Free Qty</th>
+                    <th>Purchase Price</th>
+                    <th>MRP</th>
+                    <th>Discount</th>
+                    <th>GST %</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for item in items %}
+
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+
+                    <td>
+                        <strong>{{ item.batch.medicine.name }}</strong>
+                    </td>
+
+                    <td>{{ item.batch.batch_number }}</td>
+
+                    <td>{{ item.quantity }}</td>
+
+                    <td>{{ item.free_quantity }}</td>
+
+                    <td>₹{{ item.purchase_price|floatformat:2 }}</td>
+
+                    <td>₹{{ item.mrp|floatformat:2 }}</td>
+
+                    <td>₹{{ item.discount_amount|floatformat:2 }}</td>
+
+                    <td>{{ item.gst_percentage }}%</td>
+
+                    <td>
+                        <strong>
+                            ₹{{ item.total_amount|floatformat:2 }}
+                        </strong>
+                    </td>
+                </tr>
+
+                {% empty %}
+
+                <tr>
+                    <td colspan="10"
+                        style="text-align:center; padding:30px;">
+                        No purchase items found.
+                    </td>
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+
+<!-- Amount Summary -->
+
+<div class="detail-card">
+
+    <div class="detail-card-header">
+        <h3>Payment & Amount Summary</h3>
+    </div>
+
+    <div class="detail-card-body">
+
+        <div class="summary-wrapper">
+
+            <div class="summary-box">
+
+                <div class="summary-row">
+                    <span>Subtotal</span>
+                    <strong>
+                        ₹{{ purchase.subtotal|floatformat:2 }}
+                    </strong>
+                </div>
+
+                <div class="summary-row">
+                    <span>Discount</span>
+                    <strong>
+                        ₹{{ purchase.discount_amount|floatformat:2 }}
+                    </strong>
+                </div>
+
+                <div class="summary-row">
+                    <span>GST Amount</span>
+                    <strong>
+                        ₹{{ purchase.gst_amount|floatformat:2 }}
+                    </strong>
+                </div>
+
+                <div class="summary-row summary-total">
+                    <span>Total Amount</span>
+                    <strong>
+                        ₹{{ purchase.total_amount|floatformat:2 }}
+                    </strong>
+                </div>
+
+                <div class="summary-row">
+                    <span>Paid Amount</span>
+                    <strong>
+                        ₹{{ purchase.paid_amount|floatformat:2 }}
+                    </strong>
+                </div>
+
+                <div class="summary-row">
+                    <span>Remaining Amount</span>
+                    <strong>
+                        ₹{{ remaining_balance|floatformat:2 }}
+                    </strong>
+                </div>
+
+                <div class="summary-row">
+                    <span>Payment Method</span>
+                    <strong>{{ display_payment_method }}</strong>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+
+<!-- Notes -->
+
+{% if purchase.notes %}
+
+<div class="detail-card">
+
+    <div class="detail-card-header">
+        <h3>Purchase Notes</h3>
+    </div>
+
+    <div class="detail-card-body">
+        <p class="notes-text">{{ purchase.notes }}</p>
+    </div>
+
+</div>
+
+{% endif %}
+
+
+<!-- Payment History -->
+
+<div class="detail-card">
+
+    <div class="detail-card-header">
+        <h3>Payment History</h3>
+    </div>
+
+    <div class="items-table-wrapper">
+
+        <table class="items-table">
+
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Payment Date</th>
+                    <th>Amount</th>
+                    <th>Payment Method</th>
+                    <th>Transaction Reference</th>
+                    <th>Received By</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for payment in purchase.payments.all %}
+
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+
+                    <td>
+                        {{ payment.payment_date|date:"d M Y, h:i A" }}
+                    </td>
+
+                    <td>
+                        <strong>
+                            ₹{{ payment.amount|floatformat:2 }}
+                        </strong>
+                    </td>
+
+                    <td>
+                        {{ payment.get_payment_method_display }}
+                    </td>
+
+                    <td>
+                        {{ payment.transaction_reference|default:"—" }}
+                    </td>
+
+                    <td>
+                        {{ payment.received_by|default:"—" }}
+                    </td>
+                </tr>
+
+                {% empty %}
+
+                <tr>
+                    <td colspan="6"
+                        style="text-align:center; padding:30px; color:#94a3b8;">
+                        No payment records found.
+                    </td>
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+{% endblock %}

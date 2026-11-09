@@ -1,0 +1,254 @@
+
+/* =================================
+   MEDICARE GLOBAL BASE
+================================= */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --primary: #2563eb;
+    --primary-dark: #1d4ed8;
+    --sidebar-width: 260px;
+    --bg-color: #f1f5f9;
+    --text-color: #1e293b;
+    --border-color: #e2e8f0;
+}
+
+html,
+body {
+    width: 100%;
+    max-width: 100%;
+    min-height: 100%;
+    overflow-x: hidden;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: var(--bg-color);
+    color: var(--text-color);
+}
+
+/* Main Layout */
+
+.app-layout {
+    width: 100%;
+    min-height: 100vh;
+}
+
+.main-wrapper {
+    width: calc(100% - var(--sidebar-width));
+    min-width: 0;
+    margin-left: var(--sidebar-width);
+    min-height: 100vh;
+    transition: margin-left 0.3s ease, width 0.3s ease;
+}
+
+/* Topbar */
+
+.topbar {
+    width: 100%;
+    min-width: 0;
+    height: 70px;
+    padding: 0 25px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+
+    background: #ffffff;
+    border-bottom: 1px solid var(--border-color);
+
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.topbar-left {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    min-width: 0;
+}
+
+.topbar-left h2 {
+    font-size: 20px;
+    color: #1e3a8a;
+}
+
+.topbar-right {
+    font-size: 14px;
+    font-weight: 600;
+    color: #475569;
+    overflow-wrap: anywhere;
+}
+
+/* Menu Toggle */
+
+.menu-toggle {
+    display: none;
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+
+    border: none;
+    border-radius: 7px;
+    background: #eff6ff;
+    color: var(--primary);
+
+    font-size: 22px;
+    cursor: pointer;
+}
+
+/* Page Content */
+
+.page-content {
+    width: 100%;
+    min-width: 0;
+    padding: 25px;
+    min-height: calc(100vh - 70px);
+    overflow-x: hidden;
+}
+
+/* Page Heading */
+
+.page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.page-header h1 {
+    font-size: 24px;
+    color: #0f172a;
+}
+
+.page-header p {
+    margin-top: 6px;
+    color: #64748b;
+    font-size: 13px;
+    overflow-wrap: anywhere;
+}
+
+/* Buttons */
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+
+    padding: 10px 16px;
+    border: none;
+    border-radius: 7px;
+
+    background: var(--primary);
+    color: #ffffff;
+
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.btn:hover {
+    background: var(--primary-dark);
+}
+
+/* Cards */
+
+.card {
+    width: 100%;
+    min-width: 0;
+    background: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 20px;
+}
+
+.card h2,
+.card p {
+    overflow-wrap: anywhere;
+}
+
+/* Tables */
+
+.table-wrapper {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+}
+
+/* Tablet */
+
+@media (max-width: 991px) {
+
+    .main-wrapper {
+        width: 100%;
+        margin-left: 0;
+    }
+
+    .menu-toggle {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .topbar {
+        padding: 0 18px;
+    }
+
+    .page-content {
+        padding: 20px;
+    }
+}
+
+/* Mobile */
+
+@media (max-width: 600px) {
+
+    .topbar {
+        height: 60px;
+        padding: 0 12px;
+    }
+
+    .topbar-left {
+        gap: 10px;
+    }
+
+    .topbar-left h2 {
+        font-size: 18px;
+    }
+
+    .topbar-right {
+        font-size: 12px;
+    }
+
+    .page-content {
+        padding: 14px;
+    }
+
+    .page-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .page-header h1 {
+        font-size: 21px;
+    }
+
+    .page-header .btn {
+        max-width: 100%;
+    }
+
+    .card {
+        padding: 14px;
+    }
+}

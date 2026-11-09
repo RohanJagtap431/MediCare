@@ -1,0 +1,883 @@
+
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Create Bill | MediCare{% endblock %}
+
+{% block extra_css %}
+<style>
+.sale-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin-bottom: 22px;
+}
+
+.sale-header h2 {
+    margin: 0;
+    color: #172033;
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.sale-header p {
+    margin: 6px 0 0;
+    color: #718096;
+    font-size: 14px;
+}
+
+.sale-card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 22px;
+}
+
+.sale-card-header {
+    padding: 18px 22px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.sale-card-header h3 {
+    margin: 0;
+    font-size: 17px;
+    color: #172033;
+}
+
+.sale-card-body {
+    padding: 22px;
+}
+
+.sale-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.sale-field {
+    min-width: 0;
+    margin-bottom: 17px;
+}
+
+.sale-field label {
+    display: block;
+    margin-bottom: 8px;
+    color: #334155;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.sale-field input,
+.sale-field select,
+.sale-field textarea {
+    width: 100%;
+    min-height: 44px;
+    padding: 10px 12px;
+    border: 1px solid #dbe2ea;
+    border-radius: 8px;
+    background: #fff;
+    color: #334155;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+
+.sale-field textarea {
+    min-height: 85px;
+    resize: vertical;
+}
+
+.sale-field input:focus,
+.sale-field select:focus,
+.sale-field textarea:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37,99,235,.10);
+}
+
+.sale-error {
+    color: #dc2626;
+    font-size: 12px;
+    margin-top: 5px;
+}
+
+.sale-table-wrap {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.sale-table {
+    width: 100%;
+    min-width: 950px;
+    border-collapse: collapse;
+}
+
+.sale-table th,
+.sale-table td {
+    padding: 12px;
+    border-bottom: 1px solid #edf0f4;
+    text-align: left;
+    vertical-align: top;
+}
+
+.sale-table th {
+    background: #f8fafc;
+    color: #64748b;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.sale-table td input,
+.sale-table td select {
+    width: 100%;
+    min-width: 90px;
+    min-height: 39px;
+    padding: 8px;
+    border: 1px solid #dbe2ea;
+    border-radius: 7px;
+    box-sizing: border-box;
+}
+
+.sale-table td select {
+    min-width: 230px;
+}
+
+.sale-table td .sale-delete {
+    width: auto;
+    min-width: auto;
+}
+
+.sale-table td {
+    font-size: 13px;
+}
+
+.line-total {
+    min-width: 90px;
+    padding-top: 11px;
+    color: #1d4ed8;
+    font-weight: 700;
+}
+
+.add-row-btn,
+.remove-row-btn,
+.sale-submit,
+.sale-cancel {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: 0;
+}
+
+.add-row-btn {
+    background: #eff6ff;
+    color: #1d4ed8;
+    margin-top: 15px;
+}
+
+.add-row-btn:hover {
+    background: #dbeafe;
+}
+
+.remove-row-btn {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.remove-row-btn:hover {
+    background: #fecaca;
+}
+
+.sale-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    flex-wrap: wrap;
+    border-top: 1px solid #edf0f4;
+    padding-top: 18px;
+    margin-top: 20px;
+}
+
+.sale-submit {
+    background: #2563eb;
+    color: #fff;
+}
+
+.sale-submit:hover {
+    background: #1d4ed8;
+}
+
+.sale-cancel {
+    background: #fff;
+    color: #334155;
+    border: 1px solid #dbe2ea;
+}
+
+.sale-help {
+    color: #718096;
+    font-size: 12px;
+    margin-top: 8px;
+}
+
+/* Live Bill Summary */
+
+.bill-summary {
+    width: 100%;
+    max-width: 420px;
+    margin-left: auto;
+    padding: 18px;
+    background: #f8fafc;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+}
+
+.bill-summary h4 {
+    margin: 0 0 12px;
+    color: #172033;
+    font-size: 15px;
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    padding: 9px 0;
+    color: #64748b;
+    font-size: 13px;
+}
+
+.summary-row strong {
+    color: #334155;
+}
+
+.summary-grand-total {
+    margin-top: 8px;
+    padding-top: 14px;
+    border-top: 1px solid #dbe2ea;
+    color: #172033;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.summary-grand-total strong {
+    color: #2563eb;
+    font-size: 19px;
+}
+
+@media(max-width: 650px) {
+    .sale-grid {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+
+    .sale-card-body {
+        padding: 15px;
+    }
+
+    .sale-header h2 {
+        font-size: 20px;
+    }
+
+    .sale-actions > * {
+        flex: 1;
+    }
+
+    .bill-summary {
+        max-width: none;
+    }
+}
+</style>
+{% endblock %}
+
+
+{% block content %}
+
+<!-- Header -->
+
+<div class="sale-header">
+
+    <div>
+        <h2>Create New Bill</h2>
+        <p>Create a customer bill and add medicine items.</p>
+    </div>
+
+</div>
+
+
+<!-- Messages -->
+
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            {{ message }}
+        </div>
+    {% endfor %}
+{% endif %}
+
+
+<form method="POST" id="saleForm">
+
+    {% csrf_token %}
+
+    {% if form.non_field_errors %}
+        <div class="sale-error">
+            {{ form.non_field_errors }}
+        </div>
+    {% endif %}
+
+
+    <!-- Customer Information -->
+
+    <div class="sale-card">
+
+        <div class="sale-card-header">
+            <h3>Customer & Bill Information</h3>
+        </div>
+
+        <div class="sale-card-body">
+
+            <div class="sale-grid">
+
+                <div class="sale-field">
+
+                    <label for="{{ form.customer.id_for_label }}">
+                        Customer
+                    </label>
+
+                    {{ form.customer }}
+
+                    {% for error in form.customer.errors %}
+                        <div class="sale-error">{{ error }}</div>
+                    {% endfor %}
+
+                    <div class="sale-help">
+                        Select a registered customer or leave blank for walk-in sale.
+                    </div>
+
+                </div>
+
+
+                <div class="sale-field">
+
+                    <label for="{{ form.discount_amount.id_for_label }}">
+                        Bill Discount (₹)
+                    </label>
+
+                    {{ form.discount_amount }}
+
+                    {% for error in form.discount_amount.errors %}
+                        <div class="sale-error">{{ error }}</div>
+                    {% endfor %}
+
+                </div>
+
+            </div>
+
+
+            <div class="sale-field">
+
+                <label for="{{ form.notes.id_for_label }}">
+                    Notes
+                </label>
+
+                {{ form.notes }}
+
+                {% for error in form.notes.errors %}
+                    <div class="sale-error">{{ error }}</div>
+                {% endfor %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Medicine Items -->
+
+    <div class="sale-card">
+
+        <div class="sale-card-header">
+            <h3>Medicine Items</h3>
+        </div>
+
+        <div class="sale-card-body">
+
+            {{ formset.management_form }}
+
+            {% for error in formset.non_form_errors %}
+                <div class="sale-error">{{ error }}</div>
+            {% endfor %}
+
+
+            <div class="sale-table-wrap">
+
+                <table class="sale-table">
+
+                    <thead>
+                        <tr>
+                            <th>Medicine / Batch</th>
+                            <th>Quantity</th>
+                            <th>Selling Price (₹)</th>
+                            <th>Discount (₹)</th>
+                            <th>GST (%)</th>
+                            <th>Line Total</th>
+                            <th>Remove</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="saleItems">
+
+                        {% for item_form in formset %}
+
+                            <tr class="sale-item-row">
+
+                                {% for hidden in item_form.hidden_fields %}
+                                    {{ hidden }}
+                                {% endfor %}
+
+                                <td>
+                                    {{ item_form.batch }}
+
+                                    {% for error in item_form.batch.errors %}
+                                        <div class="sale-error">{{ error }}</div>
+                                    {% endfor %}
+                                </td>
+
+                                <td>
+                                    {{ item_form.quantity }}
+
+                                    {% for error in item_form.quantity.errors %}
+                                        <div class="sale-error">{{ error }}</div>
+                                    {% endfor %}
+                                </td>
+
+                                <td>
+                                    {{ item_form.selling_price }}
+
+                                    {% for error in item_form.selling_price.errors %}
+                                        <div class="sale-error">{{ error }}</div>
+                                    {% endfor %}
+                                </td>
+
+                                <td>
+                                    {{ item_form.discount_amount }}
+
+                                    {% for error in item_form.discount_amount.errors %}
+                                        <div class="sale-error">{{ error }}</div>
+                                    {% endfor %}
+                                </td>
+
+                                <td>
+                                    {{ item_form.gst_percentage }}
+
+                                    {% for error in item_form.gst_percentage.errors %}
+                                        <div class="sale-error">{{ error }}</div>
+                                    {% endfor %}
+                                </td>
+
+                                <td>
+                                    <div class="line-total">₹0.00</div>
+                                </td>
+
+                                <td>
+                                    <button type="button"
+                                            class="remove-row-btn"
+                                            onclick="removeSaleRow(this)">
+                                        Remove
+                                    </button>
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+            <button type="button"
+                    class="add-row-btn"
+                    id="addSaleRow">
+                + Add Another Medicine
+            </button>
+
+
+            <div class="sale-help">
+                Available batches with stock and valid expiry dates are shown.
+            </div>
+
+
+            <!-- Empty Form Template -->
+
+            <div id="emptySaleForm" hidden>
+
+                <table>
+                    <tbody>
+
+                        <tr class="sale-item-row">
+
+                            {% with item_form=formset.empty_form %}
+
+                                {% for hidden in item_form.hidden_fields %}
+                                    {{ hidden }}
+                                {% endfor %}
+
+                                <td>{{ item_form.batch }}</td>
+                                <td>{{ item_form.quantity }}</td>
+                                <td>{{ item_form.selling_price }}</td>
+                                <td>{{ item_form.discount_amount }}</td>
+                                <td>{{ item_form.gst_percentage }}</td>
+
+                                <td>
+                                    <div class="line-total">₹0.00</div>
+                                </td>
+
+                                <td>
+                                    <button type="button"
+                                            class="remove-row-btn"
+                                            onclick="removeSaleRow(this)">
+                                        Remove
+                                    </button>
+                                </td>
+
+                            {% endwith %}
+
+                        </tr>
+
+                    </tbody>
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Live Bill Summary -->
+
+    <div class="sale-card">
+
+        <div class="sale-card-header">
+            <h3>Bill Summary</h3>
+        </div>
+
+        <div class="sale-card-body">
+
+            <div class="bill-summary">
+
+                <h4>Amount Details</h4>
+
+                <div class="summary-row">
+                    <span>Subtotal</span>
+                    <strong id="summarySubtotal">₹0.00</strong>
+                </div>
+
+                <div class="summary-row">
+                    <span>Item Discount</span>
+                    <strong id="summaryItemDiscount">₹0.00</strong>
+                </div>
+
+                <div class="summary-row">
+                    <span>Bill Discount</span>
+                    <strong id="summaryBillDiscount">₹0.00</strong>
+                </div>
+
+                <div class="summary-row">
+                    <span>GST Amount</span>
+                    <strong id="summaryGST">₹0.00</strong>
+                </div>
+
+                <div class="summary-row summary-grand-total">
+                    <span>Grand Total</span>
+                    <strong id="summaryGrandTotal">₹0.00</strong>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Actions -->
+
+    <div class="sale-card">
+
+        <div class="sale-card-body">
+
+            <div class="sale-actions">
+
+                <a href="{% url 'dashboard:dashboard' %}"
+                   class="sale-cancel">
+                    Cancel
+                </a>
+
+                <button type="submit" class="sale-submit">
+                    Save Bill
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</form>
+
+{% endblock %}
+
+
+{% block extra_js %}
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const addButton = document.getElementById("addSaleRow");
+    const itemsContainer = document.getElementById("saleItems");
+    const totalForms = document.getElementById("id_items-TOTAL_FORMS");
+    const emptyTemplate = document.querySelector(
+        "#emptySaleForm .sale-item-row"
+    );
+
+    const billDiscountInput = document.querySelector(
+        '[name="discount_amount"]'
+    );
+
+
+    // Format currency
+
+    function formatCurrency(value) {
+        return "₹" + Number(value || 0).toFixed(2);
+    }
+
+
+    // Read numeric field
+
+    function getNumber(row, suffix) {
+
+        const field = row.querySelector(
+            '[name$="-'+ suffix +'"]'
+        );
+
+        if (!field || field.value === "") {
+            return 0;
+        }
+
+        const value = Number(field.value);
+
+        return Number.isFinite(value) ? value : 0;
+    }
+
+
+    // Calculate line and bill totals
+
+    function calculateBill() {
+
+        let subtotal = 0;
+        let itemDiscountTotal = 0;
+        let gstTotal = 0;
+
+        const rows = itemsContainer.querySelectorAll(
+            ".sale-item-row"
+        );
+
+        rows.forEach(function (row) {
+
+            const quantity = getNumber(row, "quantity");
+            const price = getNumber(row, "selling_price");
+            const discount = getNumber(row, "discount_amount");
+            const gstPercentage = getNumber(row, "gst_percentage");
+
+            const baseAmount = quantity * price;
+
+            const validDiscount = Math.max(
+                0,
+                Math.min(discount, baseAmount)
+            );
+
+            const taxableAmount = baseAmount - validDiscount;
+
+            const gstAmount =
+                taxableAmount * gstPercentage / 100;
+
+            const lineTotal = taxableAmount + gstAmount;
+
+            subtotal += baseAmount;
+            itemDiscountTotal += validDiscount;
+            gstTotal += gstAmount;
+
+            const lineTotalElement = row.querySelector(".line-total");
+
+            if (lineTotalElement) {
+                lineTotalElement.textContent =
+                    formatCurrency(lineTotal);
+            }
+
+        });
+
+
+        const billDiscount = billDiscountInput
+            ? Math.max(0, Number(billDiscountInput.value) || 0)
+            : 0;
+
+        const grandTotal =
+            subtotal -
+            itemDiscountTotal -
+            billDiscount +
+            gstTotal;
+
+
+        document.getElementById("summarySubtotal").textContent =
+            formatCurrency(subtotal);
+
+        document.getElementById("summaryItemDiscount").textContent =
+            formatCurrency(itemDiscountTotal);
+
+        document.getElementById("summaryBillDiscount").textContent =
+            formatCurrency(billDiscount);
+
+        document.getElementById("summaryGST").textContent =
+            formatCurrency(gstTotal);
+
+        document.getElementById("summaryGrandTotal").textContent =
+            formatCurrency(grandTotal);
+
+    }
+
+
+    // Add new medicine row
+
+    addButton.addEventListener("click", function () {
+
+        const formIndex = Number(totalForms.value);
+
+        const newRow = emptyTemplate.cloneNode(true);
+
+        newRow.innerHTML = newRow.innerHTML.replace(
+            /__prefix__/g,
+            formIndex
+        );
+
+        itemsContainer.appendChild(newRow);
+
+        totalForms.value = formIndex + 1;
+
+        calculateBill();
+
+    });
+
+
+    // Remove medicine row
+
+    window.removeSaleRow = function (button) {
+
+        const rows = itemsContainer.querySelectorAll(
+            ".sale-item-row"
+        );
+
+        if (rows.length <= 1) {
+            alert("At least one medicine row is required.");
+            return;
+        }
+
+        const row = button.closest(".sale-item-row");
+
+        if (!row) {
+            return;
+        }
+
+        row.remove();
+
+        // Re-index remaining rows
+
+        const remainingRows = itemsContainer.querySelectorAll(
+            ".sale-item-row"
+        );
+
+        remainingRows.forEach(function (row, index) {
+
+            row.querySelectorAll(
+                "input, select, textarea"
+            ).forEach(function (field) {
+
+                if (field.name) {
+                    field.name = field.name.replace(
+                        /items-\d+-/,
+                        "items-" + index + "-"
+                    );
+                }
+
+                if (field.id) {
+                    field.id = field.id.replace(
+                        /id_items-\d+-/,
+                        "id_items-" + index + "-"
+                    );
+                }
+
+            });
+
+        });
+
+        totalForms.value = remainingRows.length;
+
+        calculateBill();
+
+    };
+
+
+    // Recalculate when any medicine value changes
+
+    itemsContainer.addEventListener("input", function (event) {
+
+        if (event.target.matches("input, select")) {
+            calculateBill();
+        }
+
+    });
+
+    itemsContainer.addEventListener("change", function (event) {
+
+        if (event.target.matches("input, select")) {
+            calculateBill();
+        }
+
+    });
+
+
+    // Recalculate when bill discount changes
+
+    if (billDiscountInput) {
+
+        billDiscountInput.addEventListener(
+            "input",
+            calculateBill
+        );
+
+        billDiscountInput.addEventListener(
+            "change",
+            calculateBill
+        );
+
+    }
+
+
+    // Initial calculation
+
+    calculateBill();
+
+});
+</script>
+
+{% endblock %}

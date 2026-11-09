@@ -1,0 +1,282 @@
+
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/expenses.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="expense-page">
+
+    <!-- Page Header -->
+    <div class="expense-header">
+        <div>
+            <h2>Expense Management</h2>
+            <p>Track and manage all medical store expenses.</p>
+        </div>
+
+        {% if request.user.is_superuser or request.user.role == "ADMIN" %}
+        <a href="{% url 'expenses:expense_create' %}" class="expense-primary-btn">
+            <span>+</span> Add Expense
+        </a>
+        {% endif %}
+    </div>
+
+    <!-- Messages -->
+    {% if messages %}
+    <div class="expense-messages">
+        {% for message in messages %}
+        <div class="expense-message">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    
+    <!-- Summary Cards -->
+    <div class="expense-summary-grid">
+
+        <!-- Total Expenses -->
+        <div class="expense-summary-card">
+            <div class="expense-summary-top">
+                <span>Total Expenses</span>
+                <div class="expense-summary-icon expense-icon-blue">📋</div>
+            </div>
+
+            <h3>{{ total_count }}</h3>
+            <p>Matching expense records</p>
+        </div>
+
+        <!-- Total Expense Amount -->
+        <div class="expense-summary-card">
+            <div class="expense-summary-top">
+                <span>Total Expense Amount</span>
+                <div class="expense-summary-icon expense-icon-green">💰</div>
+            </div>
+
+            <h3>₹{{ total_amount|default:"0.00" }}</h3>
+            <p>Based on selected filters</p>
+        </div>
+
+    </div>
+
+
+    <!-- Main Panel -->
+    <div class="expense-panel">
+
+        <!-- Search and Filters -->
+        <div class="expense-panel-header">
+            <div>
+                <h3>Expense Records</h3>
+                <p>Search and manage your expenses.</p>
+            </div>
+        </div>
+
+        <form method="GET" class="expense-filter">
+
+            <div class="filter-field search-field">
+                <label>Search</label>
+                <input
+                    type="text"
+                    name="q"
+                    placeholder="Search expense, category or reference..."
+                    value="{{ search_query }}"
+                >
+            </div>
+
+            <div class="filter-field">
+                <label>Category</label>
+                <select name="category">
+                    <option value="">All Categories</option>
+
+                    {% for category in categories %}
+                    <option
+                        value="{{ category.id }}"
+                        {% if selected_category == category.id|stringformat:"s" %}selected{% endif %}
+                    >
+                        {{ category.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="filter-field">
+                <label>Start Date</label>
+                <input
+                    type="date"
+                    name="start_date"
+                    value="{{ start_date }}"
+                >
+            </div>
+
+            <div class="filter-field">
+                <label>End Date</label>
+                <input
+                    type="date"
+                    name="end_date"
+                    value="{{ end_date }}"
+                >
+            </div>
+
+            <div class="filter-actions">
+                <button type="submit" class="expense-primary-btn">
+                    Filter
+                </button>
+
+                <a href="{% url 'expenses:expense_list' %}" class="expense-reset-btn">
+                    Reset
+                </a>
+            </div>
+
+        </form>
+
+        <!-- Table -->
+        <div class="expense-table-wrapper">
+
+            <table class="expense-table">
+
+                <thead>
+                    <tr>
+                        <th>Expense</th>
+                        <th>Category</th>
+                        <th>Date</th>
+                        <th>Payment Method</th>
+                        <th>Amount</th>
+                        <th>Reference</th>
+                        <th>Receipt</th>
+
+                        {% if request.user.is_superuser or request.user.role == "ADMIN" %}
+                        <th>Actions</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for expense in expenses %}
+
+                    <tr>
+
+                        <td data-label="Expense">
+                            <div class="expense-name">
+                                {{ expense.title }}
+                            </div>
+                            {% if expense.description %}
+                            <div class="expense-description">
+                                {{ expense.description|truncatechars:45 }}
+                            </div>
+                            {% endif %}
+                        </td>
+
+                        <td data-label="Category">
+                            {{ expense.category.name }}
+                        </td>
+
+                        <td data-label="Date">
+                            {{ expense.expense_date|date:"d M Y" }}
+                        </td>
+
+                        <td data-label="Payment Method">
+                            {{ expense.get_payment_method_display }}
+                        </td>
+
+                        <td data-label="Amount" class="expense-amount">
+                            ₹{{ expense.amount|floatformat:2 }}
+                        </td>
+
+                        <td data-label="Reference">
+                            {{ expense.reference_number|default:"—" }}
+                        </td>
+
+                        <td data-label="Receipt">
+                            {% if expense.receipt %}
+                            <a href="{{ expense.receipt.url }}"
+                               target="_blank"
+                               rel="noopener noreferrer"
+                               class="receipt-link">
+                                View Receipt
+                            </a>
+                            {% else %}
+                            <span class="expense-muted">—</span>
+                            {% endif %}
+                        </td>
+
+                        {% if request.user.is_superuser or request.user.role == "ADMIN" %}
+                        <td data-label="Actions">
+                            <div class="expense-row-actions">
+
+                                <a href="{% url 'expenses:expense_update' expense.pk %}"
+                                   class="edit-action">
+                                    Edit
+                                </a>
+
+                                <form method="POST"
+                                      action="{% url 'expenses:expense_delete' expense.pk %}"
+                                      onsubmit="return confirm('Are you sure you want to delete this expense?');">
+                                    {% csrf_token %}
+                                    <button type="submit" class="delete-action">
+                                        Delete
+                                    </button>
+                                </form>
+
+                            </div>
+                        </td>
+                        {% endif %}
+
+                    </tr>
+
+                    {% empty %}
+
+                    <tr>
+                        <td colspan="8" class="expense-empty">
+                            <span>📂</span>
+                            <strong>No Expenses Found</strong>
+                            <p>There are no expense records matching your search.</p>
+                        </td>
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+            </table>
+
+        </div>
+
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+        <div class="expense-pagination">
+
+            {% if page_obj.has_previous %}
+            <a href="?q={{ search_query|urlencode }}&category={{ selected_category }}&start_date={{ start_date }}&end_date={{ end_date }}&page={{ page_obj.previous_page_number }}">
+                ← Previous
+            </a>
+            {% endif %}
+
+            <span>
+                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+            </span>
+
+            {% if page_obj.has_next %}
+            <a href="?q={{ search_query|urlencode }}&category={{ selected_category }}&start_date={{ start_date }}&end_date={{ end_date }}&page={{ page_obj.next_page_number }}">
+                Next →
+            </a>
+            {% endif %}
+
+        </div>
+        {% endif %}
+
+    </div>
+
+    <!-- Category Link -->
+    <div class="expense-bottom-link">
+        <a href="{% url 'expenses:category_list' %}">
+            📂 Manage Expense Categories →
+        </a>
+    </div>
+
+</div>
+
+{% endblock %}

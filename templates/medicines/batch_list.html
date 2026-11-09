@@ -1,0 +1,106 @@
+
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Medicine Batches | MediCare{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/medicines.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <div>
+        <h1>Medicine Batches</h1>
+        <p>Manage medicine batches, prices, stock and expiry dates.</p>
+    </div>
+
+    {% if request.user.is_superuser or request.user.role == "ADMIN" %}
+        <a href="{% url 'medicines:batch_create' %}" class="btn-primary">
+            + Add Batch
+        </a>
+    {% endif %}
+</div>
+
+<div class="content-card">
+
+    <div class="search-box">
+        <input
+            type="text"
+            id="batchSearch"
+            class="form-control"
+            placeholder="Search medicine or batch number..."
+            value="{{ search }}"
+            autocomplete="off"
+        >
+    </div>
+
+    <div id="batchResults">
+        {% include "medicines/batch_results.html" %}
+    </div>
+
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const searchInput = document.getElementById("batchSearch");
+    const resultsContainer = document.getElementById("batchResults");
+
+    let searchTimer;
+
+    function loadBatches(url = null) {
+
+        const search = searchInput.value.trim();
+
+        const requestUrl = url ||
+            `?search=${encodeURIComponent(search)}`;
+
+        fetch(requestUrl, {
+            headers: {
+                "X-Requested-With": "XMLHttpRequest"
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Unable to load batches.");
+            }
+            return response.text();
+        })
+        .then(html => {
+            resultsContainer.innerHTML = html;
+        })
+        .catch(error => {
+            console.error(error);
+        });
+    }
+
+    searchInput.addEventListener("input", function () {
+        clearTimeout(searchTimer);
+
+        searchTimer = setTimeout(() => {
+            loadBatches();
+        }, 300);
+    });
+
+    resultsContainer.addEventListener("click", function (event) {
+
+        const link = event.target.closest(".batch-page-link");
+
+        if (link) {
+            event.preventDefault();
+            loadBatches(link.href);
+        }
+    });
+
+    window.addEventListener("popstate", function () {
+        loadBatches(window.location.href);
+    });
+
+});
+</script>
+{% endblock %}

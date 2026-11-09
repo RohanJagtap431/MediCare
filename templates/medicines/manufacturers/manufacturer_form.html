@@ -1,0 +1,119 @@
+
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ page_title }} | MediCare{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/medicines.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <div>
+        <h1>{{ page_title }}</h1>
+        <p>Add or update manufacturer information.</p>
+    </div>
+
+    <a href="{% url 'medicines:manufacturer_list' %}"
+       class="btn btn-secondary">
+        ← Back to Manufacturers
+    </a>
+</div>
+
+<div class="form-container">
+
+    <div class="form-card">
+
+        <div class="form-card-header">
+            <h2>Manufacturer Information</h2>
+            <p>Enter manufacturer details below.</p>
+        </div>
+
+        <form method="POST" novalidate>
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                <div class="form-error">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            <div class="form-group">
+                <label for="{{ form.name.id_for_label }}">
+                    Manufacturer Name <span>*</span>
+                </label>
+                {{ form.name }}
+                {% for error in form.name.errors %}
+                    <small class="field-error">{{ error }}</small>
+                {% endfor %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.contact_person.id_for_label }}">
+                    Contact Person
+                </label>
+                {{ form.contact_person }}
+                {% for error in form.contact_person.errors %}
+                    <small class="field-error">{{ error }}</small>
+                {% endfor %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.phone.id_for_label }}">
+                    Phone Number
+                </label>
+                {{ form.phone }}
+                {% for error in form.phone.errors %}
+                    <small class="field-error">{{ error }}</small>
+                {% endfor %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.email.id_for_label }}">
+                    Email Address
+                </label>
+                {{ form.email }}
+                {% for error in form.email.errors %}
+                    <small class="field-error">{{ error }}</small>
+                {% endfor %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.address.id_for_label }}">
+                    Address
+                </label>
+                {{ form.address }}
+                {% for error in form.address.errors %}
+                    <small class="field-error">{{ error }}</small>
+                {% endfor %}
+            </div>
+
+            <div class="form-group checkbox-group">
+                {{ form.is_active }}
+                <label for="{{ form.is_active.id_for_label }}">
+                    Active Manufacturer
+                </label>
+            </div>
+
+            <div class="form-actions">
+
+                <a href="{% url 'medicines:manufacturer_list' %}"
+                   class="btn btn-secondary">
+                    Cancel
+                </a>
+
+                <button type="submit" class="btn">
+                    Save Manufacturer
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

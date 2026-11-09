@@ -1,0 +1,220 @@
+
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Manufacturers | MediCare{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/medicines.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<!-- PAGE HEADER -->
+<div class="page-header">
+    <div>
+        <h1>Manufacturers</h1>
+        <p>Manage medicine manufacturers.</p>
+    </div>
+
+    {% if request.user.is_superuser or request.user.role == "ADMIN" %}
+        <a href="{% url 'medicines:manufacturer_create' %}" class="btn">
+            + Add Manufacturer
+        </a>
+    {% endif %}
+</div>
+
+
+<!-- MESSAGES -->
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            {{ message }}
+        </div>
+    {% endfor %}
+{% endif %}
+
+
+<div class="category-container">
+
+    <!-- LIVE SEARCH -->
+    <div class="category-search-area">
+
+        <form id="manufacturerSearchForm" class="search-form">
+
+            <input
+                type="search"
+                id="manufacturerSearch"
+                name="search"
+                value="{{ search }}"
+                placeholder="Search manufacturers..."
+                class="form-control"
+                autocomplete="off"
+            >
+
+        </form>
+
+        <span class="search-hint">
+            Search by name, contact person, phone or email
+        </span>
+
+    </div>
+
+
+    <!-- AJAX RESULTS -->
+    <div id="manufacturerResults">
+
+        {% include "medicines/manufacturers/_manufacturer_results.html" %}
+
+    </div>
+
+</div>
+
+{% endblock %}
+
+
+<!-- LIVE SEARCH JAVASCRIPT -->
+{% block extra_js %}
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const searchInput = document.getElementById("manufacturerSearch");
+    const searchForm = document.getElementById("manufacturerSearchForm");
+    const resultsContainer = document.getElementById("manufacturerResults");
+
+    if (!searchInput || !searchForm || !resultsContainer) return;
+
+    let searchTimer;
+    let activeController = null;
+
+
+    async function loadResults(page = 1, updateHistory = true, pushHistory = false) {
+
+        if (activeController) {
+            activeController.abort();
+        }
+
+        activeController = new AbortController();
+
+        const params = new URLSearchParams();
+
+        const searchValue = searchInput.value.trim();
+
+        if (searchValue) {
+            params.set("search", searchValue);
+        }
+
+        if (page > 1) {
+            params.set("page", page);
+        }
+
+        const queryString = params.toString();
+
+        const url = window.location.pathname +
+                    (queryString ? "?" + queryString : "");
+
+        resultsContainer.classList.add("loading");
+
+        try {
+
+            const response = await fetch(url, {
+                method: "GET",
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest"
+                },
+                signal: activeController.signal
+            });
+
+            if (!response.ok) {
+                throw new Error("Unable to load manufacturers.");
+            }
+
+            const html = await response.text();
+
+            resultsContainer.innerHTML = html;
+
+            if (updateHistory) {
+
+                if (pushHistory) {
+                    history.pushState({}, "", url);
+                } else {
+                    history.replaceState({}, "", url);
+                }
+
+            }
+
+        } catch (error) {
+
+            if (error.name !== "AbortError") {
+                console.error(error);
+            }
+
+        } finally {
+
+            resultsContainer.classList.remove("loading");
+
+        }
+
+    }
+
+
+    // LIVE SEARCH
+    searchInput.addEventListener("input", function () {
+
+        clearTimeout(searchTimer);
+
+        searchTimer = setTimeout(function () {
+            loadResults(1, true, false);
+        }, 350);
+
+    });
+
+
+    // PREVENT NORMAL FORM SUBMISSION
+    searchForm.addEventListener("submit", function (event) {
+
+        event.preventDefault();
+
+        clearTimeout(searchTimer);
+
+        loadResults(1, true, false);
+
+    });
+
+
+    // AJAX PAGINATION
+    resultsContainer.addEventListener("click", function (event) {
+
+        const pageLink = event.target.closest("a.page-link");
+
+        if (!pageLink) return;
+
+        event.preventDefault();
+
+        const linkUrl = new URL(pageLink.href, window.location.origin);
+
+        const page = parseInt(linkUrl.searchParams.get("page")) || 1;
+
+        loadResults(page, true, true);
+
+    });
+
+
+    // BROWSER BACK / FORWARD
+    window.addEventListener("popstate", function () {
+
+        const params = new URLSearchParams(window.location.search);
+
+        searchInput.value = params.get("search") || "";
+
+        const page = parseInt(params.get("page")) || 1;
+
+        loadResults(page, false, false);
+
+    });
+
+});
+</script>
+
+{% endblock %}

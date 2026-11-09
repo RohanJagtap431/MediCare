@@ -1,0 +1,652 @@
+
+{% extends "base.html" %}
+
+{% block title %}Bill Management | MediCare{% endblock %}
+
+{% block extra_css %}
+<style>
+.bill-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin-bottom: 22px;
+}
+
+.bill-header h2 {
+    margin: 0;
+    color: #172033;
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.bill-header p {
+    margin: 6px 0 0;
+    color: #718096;
+    font-size: 14px;
+}
+
+.bill-card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    overflow: hidden;
+}
+
+.bill-card-body {
+    padding: 20px;
+}
+
+.bill-search {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.bill-search input,
+.bill-search select {
+    min-height: 43px;
+    padding: 10px 12px;
+    border: 1px solid #dbe2ea;
+    border-radius: 8px;
+    font-size: 14px;
+    background: #fff;
+    color: #334155;
+}
+
+.bill-search input {
+    flex: 1;
+    min-width: 200px;
+}
+
+.search-btn,
+.add-bill-btn,
+.reset-btn,
+.action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 40px;
+    padding: 9px 15px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.search-btn,
+.add-bill-btn {
+    background: #2563eb;
+    color: #fff;
+}
+
+.search-btn:hover,
+.add-bill-btn:hover {
+    background: #1d4ed8;
+    color: #fff;
+}
+
+.reset-btn {
+    background: #fff;
+    color: #334155;
+    border-color: #cbd5e1;
+}
+
+.reset-btn:hover {
+    background: #f1f5f9;
+    color: #1e293b;
+}
+
+.bill-table-wrap {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.bill-table {
+    width: 100%;
+    min-width: 1100px;
+    border-collapse: collapse;
+}
+
+.bill-table th,
+.bill-table td {
+    padding: 14px 12px;
+    text-align: left;
+    border-bottom: 1px solid #edf0f4;
+    font-size: 13px;
+    white-space: nowrap;
+    vertical-align: middle;
+}
+
+.bill-table th {
+    background: #f8fafc;
+    color: #64748b;
+    font-weight: 600;
+}
+
+.bill-table td {
+    color: #334155;
+}
+
+.bill-number {
+    color: #1d4ed8 !important;
+    font-weight: 700;
+}
+
+.bill-status {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.status-paid {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.status-partial {
+    background: #fef3c7;
+    color: #b45309;
+}
+
+.status-unpaid {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.status-cancelled {
+    background: #e2e8f0;
+    color: #475569;
+}
+
+.action-group {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.action-group form {
+    margin: 0;
+}
+
+.action-btn {
+    min-height: 32px;
+    padding: 7px 10px;
+    font-size: 12px;
+}
+
+.view-btn {
+    background: #eff6ff;
+    color: #1d4ed8;
+}
+
+
+
+.view-btn:hover {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+
+
+.payment-btn {
+    background: #eff6ff;
+    color: #1d4ed8;
+    border: 1px solid #bfdbfe;
+}
+
+.payment-btn:hover {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+
+
+.cancel-btn {
+    background: #fff7ed;
+    color: #c2410c;
+    border-color: #fed7aa;
+}
+
+.cancel-btn:hover {
+    background: #ffedd5;
+}
+
+.delete-btn {
+    background: #fee2e2;
+    color: #b91c1c;
+    border-color: #fecaca;
+}
+
+.delete-btn:hover {
+    background: #fecaca;
+}
+
+.empty-state {
+    padding: 35px 15px;
+    text-align: center;
+    color: #64748b;
+}
+
+.empty-state h3 {
+    color: #334155;
+    margin-bottom: 8px;
+}
+
+.bill-pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 18px 20px;
+}
+
+.pagination-links {
+    display: flex;
+    gap: 7px;
+}
+
+.pagination-links a,
+.pagination-links span {
+    padding: 8px 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    text-decoration: none;
+    color: #334155;
+    font-size: 13px;
+}
+
+.pagination-links .current {
+    background: #2563eb;
+    color: #fff;
+    border-color: #2563eb;
+}
+
+@media (max-width: 650px) {
+    .bill-card-body {
+        padding: 14px;
+    }
+
+    .bill-header h2 {
+        font-size: 20px;
+    }
+
+    .bill-search > * {
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .bill-search input {
+        min-width: 0;
+    }
+
+    .add-bill-btn {
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .bill-pagination {
+        padding: 14px;
+    }
+}
+</style>
+{% endblock %}
+
+
+{% block content %}
+
+<!-- Header -->
+
+<div class="bill-header">
+
+    <div>
+        <h2>Bill Management</h2>
+        <p>View and manage all customer bills.</p>
+    </div>
+
+    <!-- ADMIN + STAFF: CREATE BILL -->
+
+    <a href="{% url 'sales:sale_create' %}" class="add-bill-btn">
+        + Create New Bill
+    </a>
+
+</div>
+
+
+<!-- Messages -->
+
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            {{ message }}
+        </div>
+    {% endfor %}
+{% endif %}
+
+
+<!-- SEARCH AND FILTER -->
+
+<div class="bill-card">
+
+    <div class="bill-card-body">
+
+        <form method="GET" class="bill-search">
+
+            <input
+                type="text"
+                name="q"
+                value="{{ search_query }}"
+                placeholder="Search invoice number or customer..."
+            >
+
+            <select name="status">
+
+                <option value="">All Payment Status</option>
+
+                <option value="PAID"
+                    {% if selected_status == "PAID" %}selected{% endif %}>
+                    Paid
+                </option>
+
+                <option value="PARTIAL"
+                    {% if selected_status == "PARTIAL" %}selected{% endif %}>
+                    Partial
+                </option>
+
+                <option value="UNPAID"
+                    {% if selected_status == "UNPAID" %}selected{% endif %}>
+                    Unpaid
+                </option>
+
+            </select>
+
+            <button type="submit" class="search-btn">
+                Search
+            </button>
+
+            <a href="{% url 'sales:bill_list' %}" class="reset-btn">
+                ↻ Reset
+            </a>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<!-- BILL TABLE -->
+
+<div class="bill-card">
+
+    <div class="bill-table-wrap">
+
+        <table class="bill-table">
+
+            <thead>
+                <tr>
+                    <th>Invoice Number</th>
+                    <th>Customer</th>
+                    <th>Date</th>
+                    <th>Total Amount</th>
+                    <th>Paid Amount</th>
+                    <th>Balance</th>
+                    <th>Payment Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for bill in bills %}
+
+                <tr>
+
+                    <td class="bill-number">
+                        {{ bill.invoice_number }}
+                    </td>
+
+                    <td>
+                        {% if bill.customer %}
+                            {{ bill.customer.customer_name }}
+                        {% else %}
+                            Walk-in Customer
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        {{ bill.sale_date|date:"d M Y, h:i A" }}
+                    </td>
+
+                    <td>
+                        ₹{{ bill.total_amount|floatformat:2 }}
+                    </td>
+
+                    <td>
+                        ₹{{ bill.paid_amount|floatformat:2 }}
+                    </td>
+
+                    <td>
+                        ₹{{ bill.remaining_balance|floatformat:2 }}
+                    </td>
+
+                    <td>
+
+                        {% if bill.is_cancelled %}
+
+                            <span class="bill-status status-cancelled">
+                                Cancelled
+                            </span>
+
+                        {% else %}
+
+                            <span class="bill-status
+                                {% if bill.payment_status == 'PAID' %}
+                                    status-paid
+                                {% elif bill.payment_status == 'PARTIAL' %}
+                                    status-partial
+                                {% else %}
+                                    status-unpaid
+                                {% endif %}">
+
+                                {{ bill.get_payment_status_display }}
+
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+                    <td>
+
+                        <div class="action-group">
+
+                            <!-- VIEW INVOICE: ADMIN + STAFF -->
+
+                            <a
+                                href="{% url 'sales:sale_invoice' sale_id=bill.id %}"
+                                class="action-btn view-btn">
+                                View
+                            </a>
+
+
+                            
+                            {% if not bill.is_cancelled and bill.remaining_balance > 0 %}
+                                <a
+                                    href="{% url 'sales:sale_add_payment' sale_id=bill.id %}"
+                                    class="action-btn payment-btn">
+                                    + Payment
+                                </a>
+                            {% endif %}
+
+
+                            <!-- ADMIN ONLY ACTIONS -->
+
+                            {% if request.user.is_superuser or request.user.role == "ADMIN" %}
+
+                                <!-- CANCEL BILL -->
+
+                                {% if not bill.is_cancelled %}
+
+                                    <form
+                                        method="POST"
+                                        action="{% url 'sales:sale_cancel' sale_id=bill.id %}"
+                                        onsubmit="return confirmCancel(this);">
+
+                                        {% csrf_token %}
+
+                                        <input
+                                            type="hidden"
+                                            name="reason"
+                                            value=""
+                                        >
+
+                                        <button type="submit" class="action-btn cancel-btn">
+                                            Cancel
+                                        </button>
+
+                                    </form>
+
+                                {% endif %}
+
+
+                                <!-- PERMANENT DELETE -->
+
+                                <form
+                                    method="POST"
+                                    action="{% url 'sales:sale_delete' sale_id=bill.id %}"
+                                    onsubmit="return confirmDelete(this);">
+
+                                    {% csrf_token %}
+
+                                    <button type="submit" class="action-btn delete-btn">
+                                        Delete
+                                    </button>
+
+                                </form>
+
+                            {% endif %}
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+                {% empty %}
+
+                <tr>
+                    <td colspan="8">
+
+                        <div class="empty-state">
+                            <h3>No Bills Found</h3>
+                            <p>No bill records match your search.</p>
+                        </div>
+
+                    </td>
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+
+    <!-- PAGINATION -->
+
+    {% if page_obj.has_other_pages %}
+
+    <div class="bill-pagination">
+
+        <span>
+            Page {{ page_obj.number }}
+            of {{ page_obj.paginator.num_pages }}
+        </span>
+
+        <div class="pagination-links">
+
+            {% if page_obj.has_previous %}
+
+                <a href="?q={{ search_query|urlencode }}&status={{ selected_status|urlencode }}&page={{ page_obj.previous_page_number }}">
+                    Previous
+                </a>
+
+            {% endif %}
+
+            <span class="current">
+                {{ page_obj.number }}
+            </span>
+
+            {% if page_obj.has_next %}
+
+                <a href="?q={{ search_query|urlencode }}&status={{ selected_status|urlencode }}&page={{ page_obj.next_page_number }}">
+                    Next
+                </a>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}
+
+
+{% block extra_js %}
+
+<script>
+
+function confirmCancel(form) {
+
+    const reason = prompt(
+        "Enter reason for cancelling this bill:"
+    );
+
+    if (reason === null) {
+        return false;
+    }
+
+    if (reason.trim() === "") {
+        alert("Cancellation reason is required.");
+        return false;
+    }
+
+    form.querySelector('[name="reason"]').value =
+        reason.trim();
+
+    return confirm(
+        "Are you sure you want to cancel this bill and restore stock?"
+    );
+}
+
+
+function confirmDelete(form) {
+
+    return confirm(
+        "WARNING!\n\n" +
+        "This will permanently delete the bill.\n" +
+        "Stock will be restored if applicable.\n\n" +
+        "This action cannot be undone.\n\n" +
+        "Do you want to continue?"
+    );
+
+}
+
+</script>
+
+{% endblock %}

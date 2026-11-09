@@ -1,0 +1,370 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+.stock-page {
+    width: 100%;
+    padding: 24px;
+    color: #1e293b;
+}
+
+.stock-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 24px;
+}
+
+.stock-header h2 {
+    margin: 0;
+    font-size: 25px;
+    font-weight: 700;
+}
+
+.stock-header p {
+    margin: 6px 0 0;
+    color: #64748b;
+    font-size: 14px;
+}
+
+.stock-cards {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.stock-card {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 20px;
+}
+
+.stock-card p {
+    color: #64748b;
+    font-size: 13px;
+    margin: 0 0 12px;
+}
+
+.stock-card h3 {
+    font-size: 27px;
+    margin: 0;
+    font-weight: 700;
+}
+
+.stock-card.total h3 { color: #2563eb; }
+.stock-card.low h3 { color: #d97706; }
+.stock-card.out h3 { color: #dc2626; }
+.stock-card.expired h3 { color: #7c3aed; }
+
+.stock-panel {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 20px;
+}
+
+.stock-filters {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.stock-filters input,
+.stock-filters select {
+    padding: 11px 13px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 14px;
+    outline: none;
+    background: #fff;
+}
+
+.stock-filters input {
+    flex: 1;
+    min-width: 180px;
+}
+
+.stock-filters select {
+    min-width: 170px;
+}
+
+.stock-filters button {
+    padding: 11px 20px;
+    border: none;
+    border-radius: 8px;
+    background: #2563eb;
+    color: #fff;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.stock-table-wrap {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.stock-table {
+    width: 100%;
+    min-width: 900px;
+    border-collapse: collapse;
+}
+
+.stock-table th {
+    background: #f8fafc;
+    color: #64748b;
+    font-size: 12px;
+    text-transform: uppercase;
+    text-align: left;
+    padding: 14px;
+    border-bottom: 1px solid #e2e8f0;
+    white-space: nowrap;
+}
+
+.stock-table td {
+    padding: 15px 14px;
+    border-bottom: 1px solid #f1f5f9;
+    font-size: 13px;
+}
+
+.stock-table tbody tr:hover {
+    background: #f8fafc;
+}
+
+.stock-badge {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.badge-in {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.badge-low {
+    background: #fef3c7;
+    color: #b45309;
+}
+
+.badge-out {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.badge-expired {
+    background: #ede9fe;
+    color: #6d28d9;
+}
+
+.stock-empty {
+    padding: 35px;
+    text-align: center;
+    color: #64748b;
+}
+
+@media (max-width: 1100px) {
+    .stock-cards {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 600px) {
+    .stock-page {
+        padding: 15px;
+    }
+
+    .stock-header h2 {
+        font-size: 21px;
+    }
+
+    .stock-cards {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+
+    .stock-card {
+        padding: 14px;
+    }
+
+    .stock-card h3 {
+        font-size: 22px;
+    }
+
+    .stock-panel {
+        padding: 13px;
+    }
+
+    .stock-filters {
+        flex-direction: column;
+    }
+
+    .stock-filters input,
+    .stock-filters select,
+    .stock-filters button {
+        width: 100%;
+    }
+}
+</style>
+
+<div class="stock-page">
+
+    <div class="stock-header">
+        <div>
+            <h2>Stock Management</h2>
+            <p>Monitor medicine stock and batch availability.</p>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="stock-cards">
+
+        <div class="stock-card total">
+            <p>Total Batches</p>
+            <h3>{{ total_batches }}</h3>
+        </div>
+
+        <div class="stock-card low">
+            <p>Low Stock Batches</p>
+            <h3>{{ low_stock_count }}</h3>
+        </div>
+
+        <div class="stock-card out">
+            <p>Out of Stock Batches</p>
+            <h3>{{ out_of_stock_count }}</h3>
+        </div>
+
+        <div class="stock-card expired">
+            <p>Expired Batches</p>
+            <h3>{{ expired_count }}</h3>
+        </div>
+
+    </div>
+
+    <!-- Stock Table -->
+    <div class="stock-panel">
+
+        <form method="GET" class="stock-filters">
+
+            <input
+                type="text"
+                name="q"
+                placeholder="Search medicine or batch number..."
+                value="{{ search_query }}"
+            >
+
+            <select name="status">
+                <option value="">All Stock</option>
+                <option value="AVAILABLE"
+                    {% if stock_filter == "AVAILABLE" %}selected{% endif %}>
+                    In Stock
+                </option>
+                <option value="LOW"
+                    {% if stock_filter == "LOW" %}selected{% endif %}>
+                    Low Stock
+                </option>
+                <option value="OUT"
+                    {% if stock_filter == "OUT" %}selected{% endif %}>
+                    Out of Stock
+                </option>
+                <option value="EXPIRED"
+                    {% if stock_filter == "EXPIRED" %}selected{% endif %}>
+                    Expired
+                </option>
+            </select>
+
+            <button type="submit">Search</button>
+
+        </form>
+
+        <div class="stock-table-wrap">
+
+            <table class="stock-table">
+
+                <thead>
+                    <tr>
+                        <th>Medicine</th>
+                        <th>Batch Number</th>
+                        <th>Expiry Date</th>
+                        <th>Purchase Price</th>
+                        <th>MRP</th>
+                        <th>Available Qty</th>
+                        <th>Minimum Stock</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for batch in batches %}
+
+                    <tr>
+                        <td>
+                            <strong>{{ batch.medicine.name }}</strong>
+                        </td>
+
+                        <td>{{ batch.batch_number }}</td>
+
+                        <td>{{ batch.expiry_date|date:"d M Y" }}</td>
+
+                        <td>₹{{ batch.purchase_price }}</td>
+
+                        <td>₹{{ batch.mrp }}</td>
+
+                        <td><strong>{{ batch.quantity }}</strong></td>
+
+                        <td>{{ batch.minimum_stock_level }}</td>
+
+                        <td>
+
+                            {% if batch.expiry_date <= today %}
+                                <span class="stock-badge badge-expired">
+                                    Expired
+                                </span>
+
+                            {% elif batch.quantity == 0 %}
+                                <span class="stock-badge badge-out">
+                                    Out of Stock
+                                </span>
+
+                            {% elif batch.quantity <= batch.minimum_stock_level %}
+                                <span class="stock-badge badge-low">
+                                    Low Stock
+                                </span>
+
+                            {% else %}
+                                <span class="stock-badge badge-in">
+                                    In Stock
+                                </span>
+                            {% endif %}
+
+                        </td>
+                    </tr>
+
+                    {% empty %}
+
+                    <tr>
+                        <td colspan="8" class="stock-empty">
+                            No stock records found.
+                        </td>
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

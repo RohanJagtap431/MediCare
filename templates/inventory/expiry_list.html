@@ -1,0 +1,544 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+.expiry-page {
+    width: 100%;
+    padding: 24px;
+    color: #1e293b;
+}
+
+.expiry-header {
+    margin-bottom: 24px;
+}
+
+.expiry-header h2 {
+    margin: 0;
+    font-size: 25px;
+    font-weight: 700;
+}
+
+.expiry-header p {
+    margin: 6px 0 0;
+    color: #64748b;
+    font-size: 14px;
+}
+
+.expiry-cards {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.expiry-card {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 20px;
+}
+
+.expiry-card p {
+    color: #64748b;
+    font-size: 13px;
+    margin: 0 0 12px;
+}
+
+.expiry-card h3 {
+    font-size: 27px;
+    margin: 0;
+    font-weight: 700;
+}
+
+.expiry-card.expired h3 { color: #dc2626; }
+.expiry-card.critical h3 { color: #ea580c; }
+.expiry-card.upcoming h3 { color: #d97706; }
+.expiry-card.safe h3 { color: #15803d; }
+
+.expiry-panel {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 20px;
+}
+
+.expiry-filters {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+.expiry-filters input,
+.expiry-filters select {
+    padding: 11px 13px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 14px;
+    background: #fff;
+    outline: none;
+}
+
+.expiry-filters input {
+    flex: 1;
+    min-width: 180px;
+}
+
+.expiry-filters select {
+    min-width: 190px;
+}
+
+.expiry-filters button {
+    padding: 11px 20px;
+    border: none;
+    border-radius: 8px;
+    background: #2563eb;
+    color: #fff;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.expiry-filters button:hover {
+    background: #1d4ed8;
+}
+
+.expiry-table-wrap {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.expiry-table {
+    width: 100%;
+    min-width: 850px;
+    border-collapse: collapse;
+}
+
+.expiry-table th {
+    background: #f8fafc;
+    color: #64748b;
+    font-size: 12px;
+    text-transform: uppercase;
+    text-align: left;
+    padding: 14px;
+    border-bottom: 1px solid #e2e8f0;
+    white-space: nowrap;
+}
+
+.expiry-table td {
+    padding: 15px 14px;
+    border-bottom: 1px solid #f1f5f9;
+    font-size: 13px;
+}
+
+.expiry-table tbody tr:hover {
+    background: #f8fafc;
+}
+
+.expiry-badge {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.expired-badge {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.critical-badge {
+    background: #ffedd5;
+    color: #c2410c;
+}
+
+.upcoming-badge {
+    background: #fef3c7;
+    color: #b45309;
+}
+
+.safe-badge {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.expiry-empty {
+    padding: 35px;
+    text-align: center;
+    color: #64748b;
+}
+
+@media (max-width: 1100px) {
+    .expiry-cards {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 600px) {
+    .expiry-page {
+        padding: 15px;
+    }
+
+    .expiry-header h2 {
+        font-size: 21px;
+    }
+
+    .expiry-cards {
+        gap: 10px;
+    }
+
+    .expiry-card {
+        padding: 14px;
+    }
+
+    .expiry-card h3 {
+        font-size: 22px;
+    }
+
+    .expiry-panel {
+        padding: 13px;
+    }
+
+    .expiry-filters {
+        flex-direction: column;
+    }
+
+    .expiry-filters input,
+    .expiry-filters select,
+    .expiry-filters button {
+        width: 100%;
+    }
+}
+
+
+.expiry-alerts {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.expiry-alert-section {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 18px;
+    min-width: 0;
+}
+
+.expiry-alert-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.expiry-alert-heading h3 {
+    font-size: 15px;
+    margin: 0;
+    font-weight: 700;
+}
+
+.alert-count {
+    font-size: 11px;
+    color: #64748b;
+    background: #f1f5f9;
+    padding: 5px 9px;
+    border-radius: 20px;
+    white-space: nowrap;
+}
+
+.expiry-alert-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 13px;
+    border-radius: 8px;
+    margin-bottom: 9px;
+}
+
+.expired-alert {
+    background: #fef2f2;
+    border-left: 3px solid #dc2626;
+}
+
+.near-expiry-alert {
+    background: #fff7ed;
+    border-left: 3px solid #ea580c;
+}
+
+.expiry-alert-item strong {
+    font-size: 13px;
+}
+
+.expiry-alert-item p {
+    font-size: 11px;
+    color: #64748b;
+    margin: 5px 0 0;
+}
+
+.alert-quantity {
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.alert-empty {
+    padding: 20px 10px;
+    text-align: center;
+    font-size: 13px;
+    color: #64748b;
+}
+
+@media (max-width: 900px) {
+    .expiry-alerts {
+        grid-template-columns: 1fr;
+    }
+}
+
+</style>
+
+<div class="expiry-page">
+
+    <div class="expiry-header">
+        <h2>Expiry Management</h2>
+        <p>Track expired medicines and upcoming batch expirations.</p>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="expiry-cards">
+
+        <div class="expiry-card expired">
+            <p>Expired Batches</p>
+            <h3>{{ expired_count }}</h3>
+        </div>
+
+        <div class="expiry-card critical">
+            <p>Expiring in 7 Days</p>
+            <h3>{{ critical_count }}</h3>
+        </div>
+
+        <div class="expiry-card upcoming">
+            <p>Expiring in 8–30 Days</p>
+            <h3>{{ upcoming_count }}</h3>
+        </div>
+
+        <div class="expiry-card safe">
+            <p>Safe Batches</p>
+            <h3>{{ safe_count }}</h3>
+        </div>
+
+    </div>
+
+    
+    <!-- Expiry Alerts -->
+    <div class="expiry-alerts">
+
+        <!-- Expired Stock Alert -->
+        <div class="expiry-alert-section">
+
+            <div class="expiry-alert-heading">
+                <h3>⚠️ Expired Stock Alert</h3>
+                <span class="alert-count">
+                    {{ expired_stock_alerts|length }} Records
+                </span>
+            </div>
+
+            {% for batch in expired_stock_alerts %}
+                <div class="expiry-alert-item expired-alert">
+
+                    <div>
+                        <strong>{{ batch.medicine.name }}</strong>
+                        <p>
+                            Batch: {{ batch.batch_number }}
+                            | Expiry: {{ batch.expiry_date|date:"d M Y" }}
+                        </p>
+                    </div>
+
+                    <span class="alert-quantity">
+                        {{ batch.quantity }} Units
+                    </span>
+
+                </div>
+            {% empty %}
+                <div class="alert-empty">
+                    No expired stock available.
+                </div>
+            {% endfor %}
+
+        </div>
+
+        <!-- Near Expiry Alert -->
+        <div class="expiry-alert-section">
+
+            <div class="expiry-alert-heading">
+                <h3>🔔 Near Expiry Alert</h3>
+                <span class="alert-count">
+                    {{ near_expiry_alerts|length }} Records
+                </span>
+            </div>
+
+            {% for batch in near_expiry_alerts %}
+                <div class="expiry-alert-item near-expiry-alert">
+
+                    <div>
+                        <strong>{{ batch.medicine.name }}</strong>
+                        <p>
+                            Batch: {{ batch.batch_number }}
+                            | Expiry: {{ batch.expiry_date|date:"d M Y" }}
+                        </p>
+                    </div>
+
+                    <span class="alert-quantity">
+                        {{ batch.quantity }} Units
+                    </span>
+
+                </div>
+            {% empty %}
+                <div class="alert-empty">
+                    No near expiry stock available.
+                </div>
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+
+    <!-- Expiry Records -->
+    <div class="expiry-panel">
+
+        <form method="GET" class="expiry-filters">
+
+            <input
+                type="text"
+                name="q"
+                placeholder="Search medicine or batch number..."
+                value="{{ search_query }}"
+            >
+
+            <select name="status">
+
+                <option value="">All Expiry Records</option>
+
+                <option value="EXPIRED"
+                    {% if expiry_filter == "EXPIRED" %}selected{% endif %}>
+                    Expired
+                </option>
+
+                <option value="CRITICAL"
+                    {% if expiry_filter == "CRITICAL" %}selected{% endif %}>
+                    Expiring in 7 Days
+                </option>
+
+                <option value="UPCOMING"
+                    {% if expiry_filter == "UPCOMING" %}selected{% endif %}>
+                    Expiring in 8–30 Days
+                </option>
+
+                <option value="SAFE"
+                    {% if expiry_filter == "SAFE" %}selected{% endif %}>
+                    Safe
+                </option>
+
+            </select>
+
+            <button type="submit">Search</button>
+
+        </form>
+
+        <div class="expiry-table-wrap">
+
+            <table class="expiry-table">
+
+                <thead>
+                    <tr>
+                        <th>Medicine</th>
+                        <th>Batch Number</th>
+                        <th>Expiry Date</th>
+                        <th>Available Qty</th>
+                        <th>Days Remaining</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for batch in batches %}
+
+                    <tr>
+
+                        <td>
+                            <strong>{{ batch.medicine.name }}</strong>
+                        </td>
+
+                        <td>{{ batch.batch_number }}</td>
+
+                        <td>{{ batch.expiry_date|date:"d M Y" }}</td>
+
+                        <td>{{ batch.quantity }}</td>
+
+                        <td>
+                            {% if batch.expiry_status == "EXPIRED" %}
+                                Expired
+                            {% else %}
+                                {{ batch.expiry_date|timeuntil:today }}
+                            {% endif %}
+                        </td>
+
+                        <td>
+
+                            {% if batch.expiry_status == "EXPIRED" %}
+
+                                <span class="expiry-badge expired-badge">
+                                    Expired
+                                </span>
+
+                            {% elif batch.expiry_status == "CRITICAL" %}
+
+                                <span class="expiry-badge critical-badge">
+                                    Critical
+                                </span>
+
+                            {% elif batch.expiry_status == "UPCOMING" %}
+
+                                <span class="expiry-badge upcoming-badge">
+                                    Upcoming
+                                </span>
+
+                            {% else %}
+
+                                <span class="expiry-badge safe-badge">
+                                    Safe
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+                    </tr>
+
+                    {% empty %}
+
+                    <tr>
+                        <td colspan="6" class="expiry-empty">
+                            No expiry records found.
+                        </td>
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

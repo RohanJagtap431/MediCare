@@ -1,0 +1,53 @@
+
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{% block title %}MediCare{% endblock %}</title>
+
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <link rel="stylesheet" href="{% static 'css/sidebar.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+
+    <div class="app-layout">
+
+        {% include "includes/sidebar.html" %}
+
+        <div class="main-wrapper">
+
+            <header class="topbar">
+                <div class="topbar-left">
+                    <button class="menu-toggle" id="menuToggle" type="button">
+                        ☰
+                    </button>
+
+                    <h2>MediCare</h2>
+                </div>
+
+                <div class="topbar-right">
+                    <span>{{ request.user.username }}</span>
+                </div>
+            </header>
+
+            <main class="page-content">
+                {% block content %}
+                {% endblock %}
+            </main>
+
+        </div>
+
+    </div>
+
+    <script src="{% static 'js/base.js' %}"></script>
+    <script src="{% static 'js/sidebar.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+
+</body>
+</html>

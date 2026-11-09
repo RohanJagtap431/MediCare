@@ -1,0 +1,552 @@
+
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Purchase Management | MediCare{% endblock %}
+
+{% block extra_css %}
+<style>
+.purchase-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 22px;
+    flex-wrap: wrap;
+}
+
+.purchase-header h2 {
+    margin: 0;
+    color: #172033;
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.purchase-header p {
+    margin: 6px 0 0;
+    color: #718096;
+    font-size: 14px;
+}
+
+.add-purchase-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #2563eb;
+    color: white;
+    padding: 11px 18px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.add-purchase-btn:hover {
+    background: #1d4ed8;
+    color: white;
+}
+
+/* Search */
+
+.purchase-search-form {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+}
+
+.purchase-search-form input {
+    flex: 1;
+    min-width: 220px;
+    padding: 12px 14px;
+    border: 1px solid #dbe1ea;
+    border-radius: 8px;
+    outline: none;
+    font-size: 13px;
+}
+
+.purchase-search-form input:focus {
+    border-color: #2563eb;
+}
+
+.search-btn,
+.clear-btn {
+    padding: 11px 18px;
+    border: none;
+    border-radius: 8px;
+    background: #2563eb;
+    color: white;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.clear-btn {
+    background: #64748b;
+}
+
+/* Purchase Card */
+
+.purchase-card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.purchase-card-header {
+    padding: 18px 20px;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.purchase-card-header h3 {
+    margin: 0;
+    font-size: 17px;
+    color: #172033;
+}
+
+.record-count {
+    color: #64748b;
+    font-size: 12px;
+}
+
+/* Table */
+
+.purchase-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.purchase-table {
+    width: 100%;
+    min-width: 950px;
+    border-collapse: collapse;
+}
+
+.purchase-table th,
+.purchase-table td {
+    padding: 15px 18px;
+    text-align: left;
+    border-bottom: 1px solid #edf0f4;
+    font-size: 13px;
+    white-space: nowrap;
+}
+
+.purchase-table th {
+    background: #f8fafc;
+    color: #64748b;
+    font-weight: 600;
+}
+
+.purchase-table td {
+    color: #334155;
+}
+
+.purchase-table tr:last-child td {
+    border-bottom: none;
+}
+
+/* Status */
+
+.status-badge {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.status-draft {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.status-received {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.payment-paid {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.payment-partial {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.payment-unpaid {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+/* Empty State */
+
+.empty-state {
+    text-align: center !important;
+    padding: 45px 20px !important;
+    color: #94a3b8 !important;
+}
+
+/* Pagination */
+
+.pagination-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    padding: 18px 20px;
+    border-top: 1px solid #edf0f4;
+    flex-wrap: wrap;
+}
+
+.pagination-info {
+    color: #64748b;
+    font-size: 12px;
+}
+
+.pagination {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.page-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 34px;
+    height: 34px;
+    padding: 0 10px;
+    border: 1px solid #e2e8f0;
+    border-radius: 7px;
+    color: #475569;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 600;
+    background: white;
+}
+
+.page-link:hover {
+    background: #eff6ff;
+    color: #2563eb;
+    border-color: #2563eb;
+}
+
+.page-link.active {
+    background: #2563eb;
+    color: white;
+    border-color: #2563eb;
+}
+
+.page-link.disabled {
+    opacity: 0.4;
+    pointer-events: none;
+}
+
+@media (max-width: 600px) {
+    .purchase-header h2 {
+        font-size: 20px;
+    }
+
+    .add-purchase-btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .purchase-search-form {
+        flex-direction: column;
+    }
+
+    .purchase-search-form input,
+    .purchase-search-form button,
+    .purchase-search-form a {
+        width: 100%;
+        text-align: center;
+    }
+
+    .pagination-container {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+.purchase-invoice-link {
+    color: #2563eb;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.purchase-invoice-link:hover {
+    color: #1d4ed8;
+    text-decoration: underline;
+}
+</style>
+{% endblock %}
+
+
+{% block content %}
+
+<!-- Header -->
+
+<div class="purchase-header">
+    <div>
+        <h2>Purchase Management</h2>
+        <p>Manage your medicine purchases and supplier invoices.</p>
+    </div>
+
+    {% if request.user.is_superuser or request.user.role == "ADMIN" %}
+        <a href="{% url 'purchases:purchase_create' %}"
+        class="add-purchase-btn">
+            <span>＋</span>
+            Add Purchase
+        </a>
+    {% endif %}
+</div>
+
+
+<!-- Search Form -->
+
+<form method="GET" class="purchase-search-form">
+
+    <input
+        type="text"
+        name="q"
+        value="{{ search_query }}"
+        placeholder="Search by invoice number or supplier..."
+    >
+
+    <button type="submit" class="search-btn">
+        Search
+    </button>
+
+    {% if search_query %}
+        <a href="{% url 'purchases:purchase_list' %}"
+           class="clear-btn">
+            Clear
+        </a>
+    {% endif %}
+
+</form>
+
+
+<!-- Purchase Records -->
+
+<div class="purchase-card">
+
+    <div class="purchase-card-header">
+
+        <h3>Purchase Records</h3>
+
+        <span class="record-count">
+            {{ page_obj.paginator.count }} Records
+        </span>
+
+    </div>
+
+
+    <div class="purchase-table-wrapper">
+
+        <table class="purchase-table">
+
+            <thead>
+                <tr>
+                    <th>Invoice Number</th>
+                    <th>Supplier</th>
+                    <th>Purchase Date</th>
+                    <th>Total Amount</th>
+                    <th>Paid Amount</th>
+                    <th>Purchase Status</th>
+                    <th>Payment Status</th>
+                </tr>
+            </thead>
+
+
+            <tbody>
+
+                {% for purchase in purchases %}
+
+                <tr>
+
+                    <td>
+                        <a href="{% url 'purchases:purchase_detail' purchase.pk %}"
+                        class="purchase-invoice-link">
+                            {{ purchase.invoice_number }}
+                        </a>
+                    </td>
+
+                    <td>
+                        {{ purchase.supplier.supplier_name }}
+                    </td>
+
+                    <td>
+                        {{ purchase.purchase_date|date:"d M Y" }}
+                    </td>
+
+                    <td>
+                        ₹{{ purchase.total_amount|floatformat:2 }}
+                    </td>
+
+                    <td>
+                        ₹{{ purchase.paid_amount|floatformat:2 }}
+                    </td>
+
+                    <td>
+
+                        <span class="status-badge
+                            {% if purchase.purchase_status == 'RECEIVED' %}
+                                status-received
+                            {% else %}
+                                status-draft
+                            {% endif %}">
+
+                            {{ purchase.get_purchase_status_display }}
+
+                        </span>
+
+                    </td>
+
+
+                    <td>
+
+                        <span class="status-badge
+                            {% if purchase.payment_status == 'PAID' %}
+                                payment-paid
+                            {% elif purchase.payment_status == 'PARTIAL' %}
+                                payment-partial
+                            {% else %}
+                                payment-unpaid
+                            {% endif %}">
+
+                            {{ purchase.get_payment_status_display }}
+
+                        </span>
+
+                    </td>
+
+                </tr>
+
+                {% empty %}
+
+                <tr>
+                    <td colspan="7" class="empty-state">
+
+                        <h3>No Purchases Found</h3>
+
+                        <p>
+                            {% if search_query %}
+                                No records match your search.
+                            {% else %}
+                                Start by adding your first purchase.
+                            {% endif %}
+                        </p>
+
+                    </td>
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+
+    <!-- Pagination -->
+
+    {% if page_obj.has_other_pages %}
+
+    <div class="pagination-container">
+
+        <div class="pagination-info">
+
+            Showing
+            {{ page_obj.start_index }}
+            -
+            {{ page_obj.end_index }}
+            of
+            {{ page_obj.paginator.count }}
+            records
+
+        </div>
+
+
+        <div class="pagination">
+
+            {% if page_obj.has_previous %}
+
+                <a class="page-link"
+                   href="?page=1&q={{ search_query|urlencode }}">
+                    First
+                </a>
+
+                <a class="page-link"
+                   href="?page={{ page_obj.previous_page_number }}&q={{ search_query|urlencode }}">
+                    Previous
+                </a>
+
+            {% else %}
+
+                <span class="page-link disabled">First</span>
+                <span class="page-link disabled">Previous</span>
+
+            {% endif %}
+
+
+            {% for num in page_obj.paginator.page_range %}
+
+                {% if num == page_obj.number %}
+
+                    <span class="page-link active">
+                        {{ num }}
+                    </span>
+
+                {% elif num >= page_obj.number|add:"-2" and num <= page_obj.number|add:"2" %}
+
+                    <a class="page-link"
+                       href="?page={{ num }}&q={{ search_query|urlencode }}">
+                        {{ num }}
+                    </a>
+
+                {% endif %}
+
+            {% endfor %}
+
+
+            {% if page_obj.has_next %}
+
+                <a class="page-link"
+                   href="?page={{ page_obj.next_page_number }}&q={{ search_query|urlencode }}">
+                    Next
+                </a>
+
+                <a class="page-link"
+                   href="?page={{ page_obj.paginator.num_pages }}&q={{ search_query|urlencode }}">
+                    Last
+                </a>
+
+            {% else %}
+
+                <span class="page-link disabled">Next</span>
+                <span class="page-link disabled">Last</span>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

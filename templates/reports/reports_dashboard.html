@@ -1,0 +1,501 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+.reports-page {
+    width: 100%;
+    min-width: 0;
+    padding: 24px;
+    color: #1e293b;
+}
+
+/* Header */
+.reports-header {
+    margin-bottom: 25px;
+}
+
+.reports-header h2 {
+    margin: 0;
+    font-size: 25px;
+    font-weight: 700;
+}
+
+.reports-header p {
+    margin: 7px 0 0;
+    color: #64748b;
+    font-size: 14px;
+}
+
+/* Report Navigation Cards */
+.report-navigation {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+    margin-bottom: 28px;
+}
+
+.report-navigation-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 22px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    text-decoration: none;
+    color: #1e293b;
+    transition: 0.2s ease;
+    min-width: 0;
+}
+
+.report-navigation-card:hover {
+    border-color: #2563eb;
+    box-shadow: 0 5px 18px rgba(15, 23, 42, 0.07);
+    transform: translateY(-3px);
+    color: #1e293b;
+}
+
+.report-navigation-icon {
+    width: 52px;
+    height: 52px;
+    min-width: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    font-size: 25px;
+}
+
+.sales-icon {
+    background: #eff6ff;
+}
+
+.purchase-icon {
+    background: #fff7ed;
+}
+
+.stock-icon {
+    background: #f0fdf4;
+}
+
+.report-navigation-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.report-navigation-info h3 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.report-navigation-info p {
+    margin: 6px 0 0;
+    color: #94a3b8;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.report-arrow {
+    color: #64748b;
+    font-size: 20px;
+}
+
+/* Filter */
+.reports-filter-panel {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 24px;
+}
+
+.reports-filter-form {
+    display: flex;
+    align-items: end;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.reports-filter-field {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    flex: 1;
+    min-width: 180px;
+}
+
+.reports-filter-field label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #475569;
+}
+
+.reports-filter-field input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 11px 13px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    background: #fff;
+    color: #1e293b;
+    font-size: 14px;
+}
+
+.reports-filter-field input:focus {
+    outline: none;
+    border-color: #2563eb;
+}
+
+.reports-filter-btn {
+    padding: 12px 22px;
+    border: 0;
+    border-radius: 8px;
+    background: #2563eb;
+    color: white;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.reports-filter-btn:hover {
+    background: #1d4ed8;
+}
+
+/* Summary Cards */
+.reports-summary {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.report-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 22px;
+    min-width: 0;
+}
+
+.report-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.report-card-label {
+    margin: 0;
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.report-card-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.report-card-value {
+    margin: 0;
+    font-size: 27px;
+    font-weight: 750;
+    overflow-wrap: anywhere;
+}
+
+.report-card-note {
+    margin: 12px 0 0;
+    color: #94a3b8;
+    font-size: 12px;
+}
+
+.report-card.blue .report-card-icon {
+    background: #eff6ff;
+}
+.report-card.blue .report-card-value {
+    color: #2563eb;
+}
+
+.report-card.green .report-card-icon {
+    background: #f0fdf4;
+}
+.report-card.green .report-card-value {
+    color: #15803d;
+}
+
+.report-card.orange .report-card-icon {
+    background: #fff7ed;
+}
+.report-card.orange .report-card-value {
+    color: #ea580c;
+}
+
+.report-card.purple .report-card-icon {
+    background: #faf5ff;
+}
+.report-card.purple .report-card-value {
+    color: #7c3aed;
+}
+
+.report-card.teal .report-card-icon {
+    background: #f0fdfa;
+}
+.report-card.teal .report-card-value {
+    color: #0f766e;
+}
+
+.report-card.red .report-card-icon {
+    background: #fef2f2;
+}
+.report-card.red .report-card-value {
+    color: #dc2626;
+}
+
+/* Information */
+.reports-info {
+    margin-top: 24px;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 10px;
+    padding: 16px 18px;
+    color: #1e40af;
+    font-size: 13px;
+    line-height: 1.7;
+}
+
+/* Responsive */
+@media (max-width: 1100px) {
+    .report-navigation {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .reports-summary {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 600px) {
+    .reports-page {
+        padding: 15px;
+    }
+
+    .reports-header h2 {
+        font-size: 21px;
+    }
+
+    .report-navigation {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .report-navigation-card {
+        padding: 17px;
+    }
+
+    .reports-filter-panel {
+        padding: 15px;
+    }
+
+    .reports-filter-form {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .reports-filter-field {
+        min-width: 0;
+        width: 100%;
+    }
+
+    .reports-filter-btn {
+        width: 100%;
+    }
+
+    .reports-summary {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .report-card {
+        padding: 18px;
+    }
+
+    .report-card-value {
+        font-size: 24px;
+    }
+}
+</style>
+
+<div class="reports-page">
+
+    <!-- Header -->
+    <div class="reports-header">
+        <h2>Reports Management</h2>
+        <p>Monitor sales, purchases and inventory performance.</p>
+    </div>
+
+    <!-- Report Navigation Cards -->
+    <div class="report-navigation">
+
+        <a href="{% url 'reports:detailed_sales_report' %}"
+           class="report-navigation-card">
+
+            <div class="report-navigation-icon sales-icon">📊</div>
+
+            <div class="report-navigation-info">
+                <h3>Detailed Sales Report</h3>
+                <p>View sales invoices, collections and pending balances.</p>
+            </div>
+
+            <span class="report-arrow">→</span>
+        </a>
+
+        <a href="{% url 'reports:detailed_purchase_report' %}"
+           class="report-navigation-card">
+
+            <div class="report-navigation-icon purchase-icon">🧾</div>
+
+            <div class="report-navigation-info">
+                <h3>Detailed Purchase Report</h3>
+                <p>View supplier purchases and payment details.</p>
+            </div>
+
+            <span class="report-arrow">→</span>
+        </a>
+
+        <a href="{% url 'reports:stock_valuation_report' %}"
+           class="report-navigation-card">
+
+            <div class="report-navigation-icon stock-icon">📦</div>
+
+            <div class="report-navigation-info">
+                <h3>Stock Valuation Report</h3>
+                <p>View available stock and estimated inventory value.</p>
+            </div>
+
+            <span class="report-arrow">→</span>
+        </a>
+
+    </div>
+
+    <!-- Date Filter -->
+    <div class="reports-filter-panel">
+
+        <form method="GET" class="reports-filter-form">
+
+            <div class="reports-filter-field">
+                <label for="start_date">Start Date</label>
+                <input
+                    type="date"
+                    id="start_date"
+                    name="start_date"
+                    value="{{ start_date|date:'Y-m-d' }}"
+                    required
+                >
+            </div>
+
+            <div class="reports-filter-field">
+                <label for="end_date">End Date</label>
+                <input
+                    type="date"
+                    id="end_date"
+                    name="end_date"
+                    value="{{ end_date|date:'Y-m-d' }}"
+                    required
+                >
+            </div>
+
+            <button type="submit" class="reports-filter-btn">
+                Apply Filter
+            </button>
+
+        </form>
+
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="reports-summary">
+
+        <div class="report-card blue">
+            <div class="report-card-header">
+                <p class="report-card-label">Total Sales</p>
+                <span class="report-card-icon">💰</span>
+            </div>
+            <h3 class="report-card-value">
+                ₹{{ total_sales|floatformat:2 }}
+            </h3>
+            <p class="report-card-note">Non-cancelled sales</p>
+        </div>
+
+        <div class="report-card green">
+            <div class="report-card-header">
+                <p class="report-card-label">Total Bills</p>
+                <span class="report-card-icon">🧾</span>
+            </div>
+            <h3 class="report-card-value">{{ total_bills }}</h3>
+            <p class="report-card-note">Sales invoices generated</p>
+        </div>
+
+        <div class="report-card orange">
+            <div class="report-card-header">
+                <p class="report-card-label">Total Purchases</p>
+                <span class="report-card-icon">📦</span>
+            </div>
+            <h3 class="report-card-value">
+                ₹{{ total_purchases|floatformat:2 }}
+            </h3>
+            <p class="report-card-note">Received purchases only</p>
+        </div>
+
+        <div class="report-card purple">
+            <div class="report-card-header">
+                <p class="report-card-label">Purchase Bills</p>
+                <span class="report-card-icon">📋</span>
+            </div>
+            <h3 class="report-card-value">
+                {{ total_purchase_bills }}
+            </h3>
+            <p class="report-card-note">Received purchase invoices</p>
+        </div>
+
+        <div class="report-card teal">
+            <div class="report-card-header">
+                <p class="report-card-label">Sales Collection</p>
+                <span class="report-card-icon">💳</span>
+            </div>
+            <h3 class="report-card-value">
+                ₹{{ sales_collection|floatformat:2 }}
+            </h3>
+            <p class="report-card-note">Payments received in selected period</p>
+        </div>
+
+        <div class="report-card red">
+            <div class="report-card-header">
+                <p class="report-card-label">Purchase Payments</p>
+                <span class="report-card-icon">🏦</span>
+            </div>
+            <h3 class="report-card-value">
+                ₹{{ purchase_collection|floatformat:2 }}
+            </h3>
+            <p class="report-card-note">Supplier payments in selected period</p>
+        </div>
+
+    </div>
+
+    <!-- Information -->
+    <div class="reports-info">
+        <strong>Report Information:</strong>
+        Sales and purchase totals are calculated using transaction dates.
+        Payment collections are calculated using payment dates.
+        These figures do not represent net profit.
+    </div>
+
+</div>
+{% endblock %}
